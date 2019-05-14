@@ -1,2 +1,2 @@
 # Clarifications
-Automation and GUI for clarification tasks
+Automation and GUI for handle clarification process task 

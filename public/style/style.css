@@ -1,0 +1,103 @@
+body, html {
+    height: 100%;
+  }
+
+	.card {
+		margin: 0 auto; /* Added */
+		float: none; /* Added */
+		margin-bottom: 10px; /* Added */
+}
+
+.input-holder{
+	max-height: 40px;
+}
+
+.bg {
+    /* The image used */
+    background-image: url("https://static1.squarespace.com/static/583cd6f9bebafbc5c120608a/t/5b3438baaa4a993c6213ffb2/1530149080130/IBM-THINK-ANIMATION-A.gif");
+  
+    /* Set the height */
+    height: 75%;
+  
+    /* Center and scale the image nicely */
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+
+ul.social-network {
+	list-style: none;
+	display: inline;
+	margin-left:0 !important;
+	padding: 0;
+}
+ul.social-network li {
+	display: inline;
+	margin: 0 5px;
+}
+
+.social-network a.icoInstagram {
+	background-color: #F56505;
+}
+.social-network a.icoFacebook {
+	background-color:#3B5998;
+}
+.social-network a.icoTwitter {
+	background-color:#33ccff;
+}
+.social-network a.icoGoogle {
+	background-color:#BD3518;
+}
+.social-network a.icoVimeo {
+	background-color:#0590B8;
+}
+.social-network a.icoLinkedin {
+	background-color:#007bb7;
+}
+.social-network a.icoInstagram i, .social-network a.icoFacebook i, .social-network a.icoTwitter i, 
+.social-network a.icoVimeo i, .social-network a.icoLinkedin i {
+	color:#fff;
+}
+a.socialIcon:hover, .socialHoverClass {
+	color:#44BCDD;
+}
+
+.social-circle li a {
+	display:inline-block;
+	position:relative;
+	margin:0 auto 0 auto;
+	-moz-border-radius:50%;
+	-webkit-border-radius:50%;
+	border-radius:50%;
+	text-align:center;
+	width: 30px;
+	height: 30px;
+	font-size:10px;
+	background-color: #D3D3D3;
+}
+.social-circle li i {
+	margin:0;
+	line-height:30px;
+	text-align: center;
+}
+
+.social-circle li a:hover i, .triggeredHover {
+	-moz-transform: rotate(360deg);
+	-webkit-transform: rotate(360deg);
+	-ms--transform: rotate(360deg);
+	transform: rotate(360deg);
+	-webkit-transition: all 0.2s;
+	-moz-transition: all 0.2s;
+	-o-transition: all 0.2s;
+	-ms-transition: all 0.2s;
+	transition: all 0.2s;
+}
+.social-circle i {
+	color: #fff;
+	-webkit-transition: all 0.8s;
+	-moz-transition: all 0.8s;
+	-o-transition: all 0.8s;
+	-ms-transition: all 0.8s;
+	transition: all 0.8s;
+}
