@@ -1,6 +1,8 @@
-/*  Read and display the files and paths
-*   Communication with python.
-*/
+/* import configuration of enviroment */
+require('dotenv').config();
+
+/* Import Python shell for communication*/
+var {PythonShell} = require('python-shell');
 
 /* Variables and constants */
 var IN_PATHS = []; // Array for save input paths
@@ -12,6 +14,10 @@ function get_input_paths(){
     let input = document.getElementById('input_files');
     let file_names = []; // Content the names of selected files.
     files = input.files;
+    
+    /* Clean Input array */
+    IN_PATHS = [];
+
 
     for(let i = 0; i < files.length; i++){
         file_names.push(files[i].name);
@@ -68,15 +74,10 @@ function pipeline(){
 }
 
 function send_paths(){
-    /* import configuration of enviroment */
-    require('dotenv').config();
-
-    /* Import Python shell for communication*/
-    var {PythonShell} = require('python-shell');
 
     /* Import path for stablish the python scripts path */
     var path = require('path');
-
+    
     let options = {
         mode: 'text',
         pythonOptions: ['-u'], // get print results in real-time
@@ -85,10 +86,9 @@ function send_paths(){
       };
        
       PythonShell.run('depurado.py', options, function (err, results) {
+
         if (err) throw err;
-        // results is an array consisting of messages collected during execution
+        /* results is an array consisting of messages collected during execution */
         console.log('results: %j', results);
       });
-
-    console.log( )
 }
