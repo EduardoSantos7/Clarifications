@@ -58,6 +58,7 @@ def concat_data(paths):
             os.chdir(path)
 
             temp = File(to_read=file_name, read_options={'sheet_name':sheet_names})
+            temp.data['file_name'] = file_name
             dfs.append(temp.data)
         except:
             print(f"File {file_name} could not be read")
@@ -67,18 +68,24 @@ def concat_data(paths):
 
 def depuration(raw_file):
 
-    # Delete exact duplicates
-    raw_file.delete_duplicates()
+    # Tag duplicates based in ticket key and end time
+    raw_file.data['duplicated'] = raw_file.data.duplicated(subset=['TICKET_KEY', 'Hora_fin'])
     
     # Avoid error for NaN values
     raw_file.data.fillna("", inplace=True)
 
-    raw_file.data['duplicated'] = raw_file.data.duplicated(subset='TICKET_KEY', keep=False)
-
+    # Delete duplicated open ticket
     raw_file.data = raw_file.data[raw_file.data.apply(drop_duplicated_open_tickets, axis=1)]
 
-
+    raw_file.delete_duplicates(subset=['TICKET_KEY', 'Semaforo'], keep='last')
+    
     raw_file.data['message'] = raw_file.data.apply(check_hour_consistency , axis=1)  
+
+    # Update duplicated columns for indicate which still duplicates,
+    # meaning: there are some changes in semaphores or hours.
+    raw_file.data['duplicated'] = raw_file.data.duplicated(subset='TICKET_KEY')
+
+    raw_file.data['message'] = raw_file.data.apply(check_changes_files , axis=1)  
 
     return raw_file
 
@@ -117,7 +124,24 @@ def check_hour_consistency(x):
     # All ok
     return ""
 
+def check_changes_files(x):
+    """ Indicates if a there are changes between same tickets """
 
+    message = "Han habido cambios en horas o semaforos referente al mismo ticket."
+    if x['duplicated'] and x['message']:
+        return x['message'] + ' ' + message
+    if x['duplicated']:
+        return message
+    return ""
+
+def get_inconsistencies_file(file):
+    """ Get inconsistencies from the [file] and return a File with the results """
+
+    # Edit duplicated taking only ticket key and tag all repetitions
+    file.data['duplicated'] = file.data.duplicated(subset='TICKET_KEY', keep=False)
+    inconsistencies = File()
+    inconsistencies.data = file.data[file.data['duplicated']]
+    return inconsistencies
 
 if __name__ == "__main__":
 
@@ -128,6 +152,9 @@ if __name__ == "__main__":
 
     fil = depuration(pre_file)
     save_options = {'index':False}
-    fil.save(path=output_path+"/mer.xlsx", save_options=save_options)
+    fil.save(path=output_path+"/mer.xlsx", **save_options)
+    
+    inc_file = get_inconsistencies_file(fil)
+    inc_file.save(path=output_path+"/inconsistencias.xlsx", **save_options)
 
     pass
