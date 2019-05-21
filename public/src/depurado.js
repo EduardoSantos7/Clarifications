@@ -1,8 +1,18 @@
 /* import configuration of enviroment */
 require('dotenv').config();
-
+/* Enable collapse for table dynamics */
+require('bootstrap');
+/* Import path for stablish the python scripts path */
+var path = require('path');
 /* Import Python shell for communication*/
 var {PythonShell} = require('python-shell');
+/* Load the Cloudant library. */
+var Cloudant = require('@cloudant/cloudant');
+// Initialize Cloudant with settings from .env
+var username = process.env.USER;
+var password = process.env.PASSWORD;
+var url = process.env.URL
+var cloudant = Cloudant({ account: username, password: password });
 
 /* Variables and constants */
 var IN_PATHS = []; // Array for save input paths
@@ -73,10 +83,22 @@ function pipeline(){
     send_paths();
 }
 
-function send_paths(){
+/* Get all the documents in inconsistencies db */
 
-    /* Import path for stablish the python scripts path */
-    var path = require('path');
+function load_inconsistencies(){
+    console.log("entre")
+    
+    var db = cloudant.db.use(process.env.INCONSISTENCY_DB);
+    
+    db.list({include_docs:true}, function (err, data) {
+        if(err){
+            alert("Have trouble connecting to DB: ", err);
+        }
+        return data.rows;
+    });
+}
+
+function send_paths(){
     
     let options = {
         mode: 'text',
@@ -87,7 +109,7 @@ function send_paths(){
        
       PythonShell.run('depurado.py', options, function (err, results) {
 
-        if (err) throw err;
+        if (err) throw(err);
         /* results is an array consisting of messages collected during execution */
         console.log('results: %j', results);
       });

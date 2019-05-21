@@ -6,7 +6,14 @@ import numpy as np
 import datetime
 from math import ceil
 from utils.File import File
+from utils.Ticket import Ticket
+from utils.Inconsistency import Inconsistency
+from cloudant.client import Cloudant
 from concurrent.futures import ProcessPoolExecutor, as_completed
+from dotenv import load_dotenv
+
+
+load_dotenv(verbose=True)
 
 
 def get_pre_file(paths):
@@ -143,6 +150,43 @@ def get_inconsistencies_file(file):
     inconsistencies.data = file.data[file.data['duplicated']]
     return inconsistencies
 
+def create_inconsistencies(file):
+    """ Create the Incosistency object and assign their releated tickets """
+
+    inconsistencies_list = []
+    for ticket in file.data.to_dict('records'):
+        inconsistency = next((element for element in inconsistencies_list
+            if element._id == str(ticket['TICKET_KEY'])), None)
+        if inconsistency:
+            inconsistency.add(ticket)
+        else:
+            inconsistency = Inconsistency(ticket)
+            inconsistency.add(ticket)
+            inconsistencies_list.append(inconsistency)
+    
+    for t in inconsistencies_list:
+        print(len(t.tickets))
+    return inconsistencies_list
+
+def upload_inconsistencies(inconsistencies_list):
+    user = os.getenv("USER")
+    password = os.getenv("PASSWORD")
+    url = os.getenv("URL")
+    db_name = os.getenv("INCONSISTENCY_DB")
+    client = Cloudant(user, password, url=url, connect=True, auto_renew=True)
+
+    # Open inconsistency DB
+    inconsistency_db = client[db_name]
+    try:
+        for inconsistency in inconsistencies_list:
+            inconsistency_db.create_document(vars(inconsistency))
+    except Exception as e:
+        print(e)
+
+    # Disconnect from the server
+    client.disconnect()
+
+
 if __name__ == "__main__":
 
     input_paths = sys.argv[1].split(',')
@@ -156,5 +200,11 @@ if __name__ == "__main__":
     
     inc_file = get_inconsistencies_file(fil)
     inc_file.save(path=output_path+"/inconsistencias.xlsx", **save_options)
+
+    inconsistencies_list = create_inconsistencies(inc_file)
+    for inconsistency in inconsistencies_list:
+        print(inconsistency.inconsistency_to_json())
+    
+    upload_inconsistencies(inconsistencies_list)
 
     pass
