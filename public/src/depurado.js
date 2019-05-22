@@ -1,7 +1,7 @@
 /* import configuration of enviroment */
 require('dotenv').config();
-/* Enable collapse for table dynamics */
-require('bootstrap');
+/* Import class for collapse card */
+var {CollapseCardBoard} = require('../views/commons/collapse')
 /* Import path for stablish the python scripts path */
 var path = require('path');
 /* Import Python shell for communication*/
@@ -94,8 +94,15 @@ function load_inconsistencies(){
         if(err){
             alert("Have trouble connecting to DB: ", err);
         }
-        return data.rows;
+        let board = new CollapseCardBoard('collapseCardsContainer', 'content')
+        for(let i = 0; i < data.total_rows; i++){
+            board.createCard(data.rows[i]);
+        }
     });
+}
+
+function proc(str){
+    console.log(str)
 }
 
 function send_paths(){

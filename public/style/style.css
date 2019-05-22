@@ -101,3 +101,8 @@ a.socialIcon:hover, .socialHoverClass {
 	-ms-transition: all 0.8s;
 	transition: all 0.8s;
 }
+
+/* Change the color for Warning symbol for message in inconsistencies table*/
+.fa-warning{
+	color: #f1b612;
+}
