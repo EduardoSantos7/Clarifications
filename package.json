@@ -9,9 +9,13 @@
   "author": "Eduardo Santos",
   "license": "ISC",
   "dependencies": {
+    "@cloudant/cloudant": "^4.1.0",
+    "bootstrap": "^4.3.1",
     "dotenv": "^8.0.0",
     "electron": "^5.0.1",
+    "jquery": "^3.4.1",
     "path": "^0.12.7",
+    "popper.js": "^1.15.0",
     "python-shell": "^1.0.7"
   }
 }
