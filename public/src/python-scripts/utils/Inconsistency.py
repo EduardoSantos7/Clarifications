@@ -8,6 +8,7 @@ class Inconsistency():
         self._id = str(ticket_dict['TICKET_KEY'])
         self.message = ticket_dict['message']
         self.tickets = []
+        self.solved = False
 
     def add(self, ticket_dict):
 

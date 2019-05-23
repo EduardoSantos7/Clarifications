@@ -6,14 +6,8 @@ var {CollapseCardBoard} = require('../views/commons/collapse')
 var path = require('path');
 /* Import Python shell for communication*/
 var {PythonShell} = require('python-shell');
-/* Load the Cloudant library. */
-var Cloudant = require('@cloudant/cloudant');
-// Initialize Cloudant with settings from .env
-var username = process.env.USER;
-var password = process.env.PASSWORD;
-var url = process.env.URL
-var cloudant = Cloudant({ account: username, password: password });
-
+/* Import helfer functions for interact with DB service */
+var {loadInconsistencies, solveInconsistensy, returnToInconsistency} = require('../src/utils/DBhelperFunctions')
 /* Variables and constants */
 var IN_PATHS = []; // Array for save input paths
 var OUT_PATH = ""; // String for save output paths
@@ -81,28 +75,6 @@ function pipeline(){
     }
 
     send_paths();
-}
-
-/* Get all the documents in inconsistencies db */
-
-function load_inconsistencies(){
-    console.log("entre")
-    
-    var db = cloudant.db.use(process.env.INCONSISTENCY_DB);
-    
-    db.list({include_docs:true}, function (err, data) {
-        if(err){
-            alert("Have trouble connecting to DB: ", err);
-        }
-        let board = new CollapseCardBoard('collapseCardsContainer', 'content')
-        for(let i = 0; i < data.total_rows; i++){
-            board.createCard(data.rows[i]);
-        }
-    });
-}
-
-function proc(str){
-    console.log(str)
 }
 
 function send_paths(){

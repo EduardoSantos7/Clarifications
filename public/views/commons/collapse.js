@@ -53,9 +53,9 @@ class CollapseCardBoard{
 
 class CollapseCard{
   constructor(data, id_number, parent_id){
-    this.title = data.doc._id;
-    this.message = data.doc.message
-    this.tickets = data.doc.tickets
+    this.title = data._id;
+    this.message = data.message
+    this.tickets = data.tickets
 
     this.card = document.createElement('div');
     this.card.className = 'card';
@@ -161,7 +161,7 @@ class CollapseTable{
         let action = document.createElement('button');
         action.appendChild(document.createTextNode('Agregar'));
         action.className = 'btn btn-outline-primary btn-sm m-0 waves-effect';
-        action.setAttribute('onclick', "proc("+ this.rows[i] +")");
+        action.setAttribute('onclick', "solveInconsistensy("+ this.rows[i] +")");
 
         accion.appendChild(action);
 
