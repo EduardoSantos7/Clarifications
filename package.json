@@ -18,5 +18,8 @@
     "popper.js": "^1.15.0",
     "python-shell": "^1.0.7",
     "sweetalert2": "^8.11.6"
+  },
+  "devDependencies": {
+    "timelite": "^1.0.0"
   }
 }

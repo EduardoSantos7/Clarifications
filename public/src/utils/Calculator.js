@@ -1,5 +1,7 @@
 /* This class represents a calculator for make clarifications */
 
+var { rowTime, totalTime } = require('./dateTimeAlgorithms')
+
 class Calculator{
 
     constructor(plot_id, title){
@@ -61,10 +63,13 @@ class Calculator{
 
         let input2 = document.createElement('input');
         input2.type = 'time';
+        let calculator = this;
+        input2.onchange = function(){ rowTime(row); totalTime(calculator);}
 
         let input3 = document.createElement('input');
         input3.type = 'time';
         input3.disabled = 'true';
+        input3.className = 'totalTimeRow';
 
         let area = document.createElement('textarea');
 
@@ -99,6 +104,7 @@ class Calculator{
         let input = document.createElement('input');
         input.type = 'time';
         input.disabled = 'true';
+        input.className = 'totalTimeCalculator';
 
         let cell_button = document.createElement('td');
         cell_button.className = 'p-2';
