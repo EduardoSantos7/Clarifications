@@ -114,10 +114,10 @@ function timeClarification(){
 	plot_zone.appendChild(container_row);
 
 	/* Insert IBM Calculator */
-	new Calculator(id_col_1, 'IBM');
+	new Calculator(id_col_1, 'IBM', true);
 
 	/* Insert Client Calculator */
-	new Calculator(id_col_2, 'BBVA');
+	new Calculator(id_col_2, 'BBVA', false);
 }
 
 /* Contribuyente clarification*/

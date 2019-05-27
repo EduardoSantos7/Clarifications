@@ -22,22 +22,69 @@
             <div class="col sidebar-offcanvas" id="sidebar">
                 <h3>Aclaraciones</h3>
                 <!-- Search form -->
-                <form class="form-inline md-form form-sm active-cyan active-cyan-2 mt-2">
+                <form class="form-inline md-form form-sm active-cyan active-cyan-2 m-2 pt-4">
                     <div class="row">
                         <input id="ticketInput" class="form-control form-control-sm ml-3 w-75 inputSidebar" type="text" placeholder="Search" aria-label="Search">
                         <i id="iconSearch" class="fa fa-search m-1 btn btn-outline-primary my-2 my-sm-0" onclick="search_ticket()" aria-hidden="true"></i>
                     </div>
                 </form>
                 
-                <div class="selectDiv">
+                <div class="selectDiv pt-4">
                     <select id="selectClarification" class="custom-select" onchange="chooseClarification()">
                         <option>Tipo de aclaración</option>
                         <option value="time">Tiempo</option>
                         <option value="contribuyente">Contribuyente</option>
                         <option value="both">Ambos</option>
-                      </select>
-                      
-                      </div>
+                    </select>
+                </div>
+
+                <div class="pt-4">
+                    <table id="resultTable" class="table table-bordered btn-table mt-2 small">
+                        
+                            <thead class="bg-primary text-white">
+                                    <tr>
+                                        <th>AJUSTE DE TIEMPO</th>
+                                    </tr>
+                                </thead>
+                                
+                                <tbody class="bg-white">
+                                    <tr>
+                                        <td>
+                                            <input type="time" id="ajusteTiempo" disabled>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                        
+                        <thead class="bg-primary text-white">
+                            <tr>
+                                <th>NUEVAS HORAS NETAS</th>
+                            </tr>
+                        </thead>
+                        
+                        <tbody class="bg-white">
+                            <tr>
+                                <td>
+                                    <input type="time" id="nuevasHorasNetas" disabled>
+                                </td>
+                            </tr>
+                        </tbody>
+
+                        <thead class="bg-primary text-white">
+                            <tr>
+                                <th>NUEVA FECHA FIN</th>
+                            </tr>
+                        </thead>
+
+                        <tbody class="bg-white">
+                                <tr>
+                                    <td>
+                                        <input type="datetime-local" id="resultDatetime">
+                                    </td>
+                                </tr>
+                            </tbody>
+                    </table>
+                </div>
+
             </div>
             <div class="col" id="main">
                 <div id="TicketInfoTable"></div>

@@ -4,7 +4,7 @@ var { rowTime, totalTime } = require('./dateTimeAlgorithms')
 
 class Calculator{
 
-    constructor(plot_id, title){
+    constructor(plot_id, title, ibm){
 
         this.table = document.createElement('table');
         this.table.className = 'table table-striped table-responsive table-bordered btn-table mt-2 small mx-auto text-center';
@@ -13,6 +13,7 @@ class Calculator{
         this.tbody = document.createElement('tbody');
         this.tfoot = document.createElement('tfoot');
         this.title = title;
+        this.ibm = ibm; // Indicates if the calculator is ibm or client calculator
         this.row_count = 5; // Default Value
         this.table.appendChild(this.thead);
         this.table.appendChild(this.tbody);

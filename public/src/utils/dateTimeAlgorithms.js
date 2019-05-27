@@ -19,13 +19,22 @@ function totalTime(calculator){
 
     let inputs = calculator.tbody.getElementsByClassName('totalTimeRow');
     let total = calculator.tfoot.getElementsByClassName('totalTimeCalculator');
-    console.log(total)
     let time_acum = [];
+
     for(let i = 0; i < inputs.length; i++){
         let time = inputs[i].value;
         if(time) time_acum.push(time);
     }
     total[0].value = str(add(time_acum));
+    if(calculator.ibm){
+        let nuevas_horas_netas = document.getElementById('nuevasHorasNetas');
+        nuevas_horas_netas.value = total[0].value;
+    }
+    else{
+        let ajuste_tiempo = document.getElementById('ajusteTiempo');
+        ajuste_tiempo.value = total[0].value;
+    }
+
 }
 
 module.exports.rowTime = rowTime;
