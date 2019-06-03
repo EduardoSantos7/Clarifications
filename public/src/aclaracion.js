@@ -3,6 +3,7 @@
 var { getTicket, getATM } = require('../src/utils/DBhelperFunctions')
 var { TicketInfoTable } = require('../src/utils/TicketInfoTable')
 var { Calculator } = require('../src/utils/Calculator')
+var { createWindow, isDayInWindow } = require('../src/utils/dateTimeAlgorithms')
 
 const Swal = require('sweetalert2')
 
@@ -35,10 +36,12 @@ function displayTicketInfo(clarification, atm) {
 	
 	// Merge clarification and atm dicts in only one.
 	let union = extend(clarification, atm);
-	union['dia_ventana'] = true;
+	ticket = union;
+	let start_date = new Date(ticket.fecha_inicio).getDay();
+	let is_day_window = isDayInWindow(start_date, createWindow(ticket.dias_idc, ticket.hrs_idc));
+	union['dia_ventana'] = is_day_window ? 'SI':'NO';
 
 	// Save the ticket for handle it without repetitive DB calls.
-	ticket = union;
 
 	/* Display Table */
 	new TicketInfoTable('TicketInfoTable', HEADERS, [union]);
@@ -114,10 +117,10 @@ function timeClarification(){
 	plot_zone.appendChild(container_row);
 
 	/* Insert IBM Calculator */
-	new Calculator(id_col_1, 'IBM', true);
+	new Calculator(id_col_1, 'IBM', true, ticket);
 
 	/* Insert Client Calculator */
-	new Calculator(id_col_2, 'BBVA', false);
+	new Calculator(id_col_2, 'BBVA', false, null);
 }
 
 /* Contribuyente clarification*/
