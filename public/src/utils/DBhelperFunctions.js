@@ -39,8 +39,13 @@ function solveInconsistensy(inconsistency){
         result.docs[0].solved = true;
         db.insert(result.docs[0])
         let clarificationDB = cloudant.db.use(process.env.CLARIFICATION_DB);
-        clarificationDB.insert(inconsistency);
-        location.reload();
+        clarificationDB.insert(inconsistency).then((result, err) => {
+            if(err) {
+                alert("No se ha podido registrar la corrección!");
+                return;
+            }
+            location.reload();
+        })
     })
 }
 
@@ -66,7 +71,41 @@ function returnToInconsistency(inconsistency){
     });
 }
 
+/* Get a document that represents a ticket */
+
+function getTicket(ticket_id, callback){
+
+    var clarificationDB = cloudant.db.use(process.env.CLARIFICATION_DB);
+
+    clarificationDB.get(ticket_id, function(err, result){
+        if(err) alert(err);
+        callback(result);
+    });
+}
+
+/* Get a document that represents a ticket */
+
+function getATM(atm_id, clarification, callback){
+
+    var bdi_DB = cloudant.db.use(process.env.BDI_DB);
+
+    bdi_DB.get('bdi:bbva', function(err, result){
+        if(err) alert(err);
+        let atm;
+        for(let i = 0; i < result.cajeros.length ; i++){
+            if(result.cajeros[i].atm == atm_id){
+                atm = result.cajeros[i];
+                break;
+            }
+        }
+        callback(clarification, atm);
+    });
+}
+
 /*  Export functions */
 module.exports.loadInconsistencies = loadInconsistencies;
 module.exports.solveInconsistensy = solveInconsistensy;
 module.exports.returnToInconsistency = returnToInconsistency;
+
+module.exports.getTicket = getTicket;
+module.exports.getATM = getATM;
