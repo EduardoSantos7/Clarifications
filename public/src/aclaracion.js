@@ -144,3 +144,33 @@ function bothClarification(){
 	}
 }
 
+/* Erase the content in the 3 main containers and I/O fields */
+
+function cls(){
+
+	var ticketInfoTable = document.getElementById("TicketInfoTable");
+	while (ticketInfoTable.firstChild) {
+		ticketInfoTable.removeChild(ticketInfoTable.firstChild);
+	}
+	
+	var displayZone = document.getElementById("displayZone");
+	while (displayZone.firstChild) {
+		displayZone.removeChild(displayZone.firstChild);
+	}
+
+	var searchInput = document.getElementById('ticketInput');
+	searchInput.value = '';
+
+	var ajusteTiempo = document.getElementById('ajusteTiempo');
+	ajusteTiempo.value = '';
+
+	var nuevasHorasNetas = document.getElementById('nuevasHorasNetas');
+	nuevasHorasNetas.value = '';
+
+	var resultDatetime = document.getElementById('resultDatetime');
+	resultDatetime.value = '';
+
+	var selectClarification = document.getElementById('selectClarification');
+	selectClarification.selectedIndex  = '0';
+}
+

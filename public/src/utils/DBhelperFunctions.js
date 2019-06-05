@@ -62,7 +62,7 @@ function loadClarifications(){
 function searchTicket(clarification_id){
 
 	let ticket_id = document.getElementById('ticketInput').value || String(clarification_id) + '.0';
-    console.log("buscando...")
+    cls()
 
 	if(ticket_id){
 		getTicket(ticket_id, (clarification) => 
