@@ -1,31 +1,18 @@
 /* This script handle clarification proccess*/
 
-var { getTicket, getATM } = require('../src/utils/DBhelperFunctions')
+var { searchTicket } = require('../src/utils/DBhelperFunctions')
 var { TicketInfoTable } = require('../src/utils/TicketInfoTable')
 var { Calculator } = require('../src/utils/Calculator')
 var { createWindow, isDayInWindow } = require('../src/utils/dateTimeAlgorithms')
+/* Import helfer functions for interact with DB service */
+var {loadClarifications} = require('../src/utils/DBhelperFunctions')
+/* Import class for collapse card */
+var {CollapseCardBoard} = require('../views/commons/collapse')
 
 const Swal = require('sweetalert2')
 
 /* Constants and Global variables */
 var ticket; // Save the merged info about clarification and atm.
-
-/* Search in DB the ticket with input value as ID */
-
-function search_ticket(){
-
-	let ticket_id = document.getElementById('ticketInput').value;
-	console.log("buscando...")
-	if(ticket_id){
-		getTicket(ticket_id, (clarification) => 
-			getATM(clarification.atm , clarification, (clarification, atm) => {
-				displayTicketInfo(clarification, atm);
-		}));
-	}
-	else{
-		alert("Inserta un ID valido");
-	}
-}
 
 /* Recives 2 dictionaries and display their data */
 

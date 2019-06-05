@@ -6,13 +6,13 @@ const HEADERS = ["#", 'INICIO', 'FIN', 'HORAS NETAS', 'SEMAFORO', 'ARCHIVO', 'AC
 const FIELDS = ['fecha_inicio', 'fecha_fin', 'horas_netas', 'semaforo', 'archivo'];
 
 class CollapseCardBoard{
-  constructor(id, plot_zone_id){
+  constructor(id, plot_zone_id, options){
     /* Inicialize */
     this.board = document.createElement("div");
     this.board.id = id;
     this.board.className = 'mt-2';
     this.cards_count = 0;
-
+    this.options = options;
     this.addTitle();
 
     /* Insert */
@@ -45,17 +45,18 @@ class CollapseCardBoard{
   }
 
   createCard(data){
-    let card = new CollapseCard(data, this.cards_count, this.board.id);
+    let card = new CollapseCard(data, this.cards_count, this.board.id, this.options);
     this.insertCard(card);
   }
 }
 
 
 class CollapseCard{
-  constructor(data, id_number, parent_id){
-    this.title = data._id;
-    this.message = data.message
-    this.tickets = data.tickets
+  constructor(data, id_number, parent_id, options){
+    this.title = data._id || data.doc._id;
+    this.message = data.message || "Revisar"
+    this.options = options;
+    this.tickets = data.tickets || data
 
     this.card = document.createElement('div');
     this.card.className = 'card';
@@ -111,17 +112,18 @@ class CollapseCard{
   }
 
   createTable(rows){
-    let table = new CollapseTable(rows);
+    let table = new CollapseTable(rows, this.options);
     this.insertTable(table);
   }
 }
 
 class CollapseTable{
-  constructor(rows){
+  constructor(rows, options){
     this.table = document.createElement("table");
     this.table.className = 'table table-striped table-responsive table-bordered btn-table mt-2';
     this.header = document.createElement("thead");
     this.body = document.createElement("tbody");
+    this.options = options;
     this.rows = rows;
 
     this.fill_headers();
@@ -132,9 +134,9 @@ class CollapseTable{
 
   fill_headers(){
     let titleRow = document.createElement('TR');
-    for(let i = 0; i < HEADERS.length; i++){
+    for(let i = 0; i < this.options['headers'].length; i++){
         let header = document.createElement("TH");
-        let text = document.createTextNode(HEADERS[i]);
+        let text = document.createTextNode(this.options['headers'][i]);
         header.className = 'text-center';
         header.appendChild(text);
         titleRow.appendChild(header);
@@ -143,25 +145,33 @@ class CollapseTable{
   }
 
   fill_body(){
-    for(let i = 0; i < this.rows.length; i++){
+    let len = this.rows.length || 1 
+    for(let i = 0; i < len; i++){
         let titleRow = document.createElement('TR');
-        let obj = JSON.parse(this.rows[i]);
+        let obj = this.rows.doc || JSON.parse(this.rows[i]);
         titleRow.className = 'text-center';
 
         let num = document.createElement('td');
         num.appendChild(document.createTextNode(i+1));
         titleRow.appendChild(num);
-        for(let j = 0; j < FIELDS.length; j++){
+        for(let j = 0; j < this.options['fields'].length; j++){
           let element = document.createElement('td');
-          element.appendChild(document.createTextNode(obj[FIELDS[j]]));
+          element.appendChild(document.createTextNode(obj[this.options['fields'][j]]));
           titleRow.appendChild(element);
         }
 
         let accion = document.createElement('td');
         let action = document.createElement('button');
-        action.appendChild(document.createTextNode('Agregar'));
+        action.appendChild(document.createTextNode(this.options['actionButtonText']));
         action.className = 'btn btn-outline-primary btn-sm m-0 waves-effect';
-        action.setAttribute('onclick', "solveInconsistensy("+ this.rows[i] +")");
+
+        if(this.options['type'] === 'inconsistency'){
+          action.setAttribute('onclick', "solveInconsistensy("+ this.rows[i] +")");
+        }
+        else if(this.options['type'] === 'clarification'){
+          console.log("asigne aqui", obj)
+          action.setAttribute('onclick', "searchTicket("+ obj._id +")");
+        }
 
         accion.appendChild(action);
 

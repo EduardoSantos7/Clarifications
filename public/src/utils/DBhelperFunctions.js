@@ -21,11 +21,58 @@ function loadInconsistencies(){
         if(err){
             alert("Have trouble connecting to DB: ", err);
         }
-        let board = new CollapseCardBoard('collapseCardsContainer', 'content')
+        let options = {
+            'headers':["#", 'INICIO', 'FIN', 'HORAS NETAS', 'SEMAFORO', 'ARCHIVO', 'ACCIÓN'],
+            'fields':['fecha_inicio', 'fecha_fin', 'horas_netas', 'semaforo', 'archivo'],
+            'actionButtonText':'Agregar',
+            'type':'inconsistency'
+        }
+        let board = new CollapseCardBoard('collapseCardsContainer', 'content', options)
         for(let i = 0; i < data.docs.length; i++){
             board.createCard(data.docs[i]);
         }
     });
+}
+
+/* Get all the documents in clarification */
+
+function loadClarifications(){
+
+    var db = cloudant.db.use(process.env.CLARIFICATION_DB);
+    
+    db.list({include_docs:true}, function (err, data) {
+        if(err){
+            alert("Have trouble connecting to DB: ", err);
+        }
+        let options = {
+            'headers':["#", 'INICIO', 'FIN', 'HORAS NETAS', 'SEMAFORO', 'ACCIÓN'],
+            'fields':['fecha_inicio', 'fecha_fin', 'horas_netas', 'semaforo'],
+            'actionButtonText':'Aclarar',
+            'type':'clarification'
+        }
+        let board = new CollapseCardBoard('collapseCardsContainer', 'displayZone', options)
+        for(let i = 0; i < data.rows.length; i++){
+            board.createCard(data.rows[i]);
+        }
+    });
+}
+
+/* Search in DB the ticket with input value as ID */
+
+function searchTicket(clarification_id){
+
+	let ticket_id = document.getElementById('ticketInput').value || String(clarification_id) + '.0';
+    console.log("buscando...")
+
+	if(ticket_id){
+		getTicket(ticket_id, (clarification) => 
+			getATM(clarification.atm , clarification, (clarification, atm) => {
+				displayTicketInfo(clarification, atm);
+		}));
+    }
+	else{
+		alert("Inserta un ID valido");
+	}
 }
 
 /* Update the solved property of inconsistency and create a new clarification */
@@ -109,3 +156,6 @@ module.exports.returnToInconsistency = returnToInconsistency;
 
 module.exports.getTicket = getTicket;
 module.exports.getATM = getATM;
+
+module.exports.searchTicket = searchTicket;
+module.exports.loadClarifications = loadClarifications;
