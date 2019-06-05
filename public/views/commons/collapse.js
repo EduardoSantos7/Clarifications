@@ -25,14 +25,12 @@ class CollapseCardBoard{
     let icon = document.createElement('i');
     icon.className = "fa fa-warning mr-1 m-2";
     let underline = document.createElement('u');
-    underline.appendChild(document.createTextNode("INCONSISTENCIAS"));
+    underline.appendChild(document.createTextNode(this.options['title']));
     title.appendChild(icon);
     title.appendChild(underline);
     
     let subTitle = document.createElement('h6');
-    subTitle.appendChild(document.createTextNode(`Los siguientes tickets no pueden 
-                                                    ser agregados a la BD de Aclaraciones 
-                                                      hasta que se resuelvan los confictos`));
+    subTitle.appendChild(document.createTextNode(this.options['mainMenssage']));
     subTitle.className = 'card-subTitle text-muted m-1 p-1';
     title.appendChild(subTitle);
     

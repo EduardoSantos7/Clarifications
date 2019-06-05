@@ -25,7 +25,11 @@ function loadInconsistencies(){
             'headers':["#", 'INICIO', 'FIN', 'HORAS NETAS', 'SEMAFORO', 'ARCHIVO', 'ACCIÓN'],
             'fields':['fecha_inicio', 'fecha_fin', 'horas_netas', 'semaforo', 'archivo'],
             'actionButtonText':'Agregar',
-            'type':'inconsistency'
+            'type':'inconsistency',
+            'title':'INCONSISTENCIAS',
+            'mainMenssage':`Los siguientes tickets no pueden 
+                                ser agregados a la BD de Aclaraciones 
+                                    hasta que se resuelvan los confictos`
         }
         let board = new CollapseCardBoard('collapseCardsContainer', 'content', options)
         for(let i = 0; i < data.docs.length; i++){
@@ -45,10 +49,12 @@ function loadClarifications(){
             alert("Have trouble connecting to DB: ", err);
         }
         let options = {
-            'headers':["#", 'INICIO', 'FIN', 'HORAS NETAS', 'SEMAFORO', 'ACCIÓN'],
-            'fields':['fecha_inicio', 'fecha_fin', 'horas_netas', 'semaforo'],
+            'headers':["#", 'ATM', 'INICIO', 'FIN', 'HORAS NETAS', 'SEMAFORO', 'REMEDY' ,'ACCIÓN'],
+            'fields':['atm', 'fecha_inicio', 'fecha_fin', 'horas_netas', 'remedy' ,'semaforo'],
             'actionButtonText':'Aclarar',
-            'type':'clarification'
+            'type':'clarification',
+            'mainMenssage':"Tienes pendientes " + String(data.rows.length) + " aclaraciones",
+            title:'ACLARACIONES'
         }
         let board = new CollapseCardBoard('collapseCardsContainer', 'displayZone', options)
         for(let i = 0; i < data.rows.length; i++){

@@ -124,7 +124,39 @@ function contribuyenteClarification(){
 			type: 'warning',
 			confirmButtonText: 'Entendido!'
 		});
+		return;
 	}
+
+	let plot_zone = document.getElementById('displayZone');
+
+	let container_row = document.createElement('div');
+	container_row.className = 'row p-2';
+
+	let column_1 = document.createElement('div');
+	let subRow1 = document.createElement('div');
+	let subRow2 = document.createElement('div');
+	let commentBox = document.createElement('textarea');
+
+	commentBox.id = "commentBoxContribuyente"
+	commentBox.className = 'mt-3';
+	column_1.className = 'col-centered';
+	subRow1.className = 'row';
+	subRow2.className = 'row';
+
+	create_catalogue_select(subRow1);
+
+	// <div class="selectDiv pt-4">
+  //                   <select id="selectClarification" class="custom-select" onchange="chooseClarification()">
+  //                       <option>Tipo de aclaración</option>
+  //                       <option value="time">Tiempo</option>
+  //                       <option value="contribuyente">Contribuyente</option>
+  //                       <option value="both">Ambos</option>
+	//                   </select>
+	subRow2.appendChild(commentBox);
+	column_1.appendChild(subRow1);
+	column_1.appendChild(subRow2);
+	container_row.appendChild(column_1);
+	plot_zone.appendChild(container_row);
 }
 
 /* Both clarification*/
@@ -141,7 +173,10 @@ function bothClarification(){
 			type: 'warning',
 			confirmButtonText: 'Entendido!'
 		});
+		return;
 	}
+	contribuyenteClarification();
+	timeClarification();
 }
 
 /* Erase the content in the 3 main containers and I/O fields */
@@ -172,5 +207,33 @@ function cls(){
 
 	var selectClarification = document.getElementById('selectClarification');
 	selectClarification.selectedIndex  = '0';
+}
+
+/* Create a select with catalogue options */
+function create_catalogue_select(display_zone){
+
+	const descriptions = ['Cajero sin sesionar', 'Problema Multivendor', 'Custodia no llego FS', 'Recoordina cita', 'Adecuaciones fisicas fuera de servicio banco',
+		'Adecuaciones fisicas fuera de servicio empresa', 'Comunicaciones medio', 'Comunicaciones nodo', 'Comunicaciones RED local', 'Comunicaciones Router', 'Equipo de comunicaciones',
+		'Cita no exitosa cliente/ IDC', 'Cita en tramite Protocolo / IDC', 'Recoordina cita', 'Vandalizmo Dispensador / TFS', 'Vandalizmo Lectora / TFS', 'Vandalizmo teclado /TFS',
+		'Vandalizmo fascia/ PLA', 'Vandalizmo monitor/ TFS', 'Mantenimiento cancelado', 'Energia Electrica (Local)', 'Energia Electrica (Zonal)', 'Prob. EE local suc','Prob. EE local empresa',
+		'Prob. EE CFE', 'Error Operativo Suc/Cia Tras', 'Error por Calidad de Billete', 'Riesgo Operativo'
+	];
+	const codes = ['HOST1', 'HOST2', 'FM0070', 'ETVRECO', 'ADFIS', 'ADFIS1', 'COMED', 'CONODO', 'COMREDL', 'COROU', 'EQCOM', 'CNECIDC', 'CTPRIDC', 'ETVRECO', 'OC0017', 'OC0018', 'OC0001',
+		'VAFASPL', 'VAFASFS', 'VAMONFS', 'FM0071', 'LOCAL', 'ZONA', 'EELOCS', 'ENEMP', 'EECFE', 'FM0074', 'FM0075', 'ROAFG'
+	];
+
+	let select = document.createElement('select');
+	select.className = 'custom-select';
+
+	for(let i = 0; i < descriptions.length; i++){
+		let option = document.createElement('option');
+		option.appendChild(document.createTextNode(descriptions[i]));
+		option.value = codes[i];
+		select.appendChild(option);
+	}
+	select.selectedIndex = "0";
+
+	display_zone.appendChild(select);
+
 }
 
