@@ -129,6 +129,31 @@ class Calculator{
         this.tfoot.appendChild(row);
     }
 
+    getCalculationComment(){
+        
+        let comment = 'DE\tA\tTOTAL\tCOMENTARIO\n';
+        let rows = this.tbody.children;
+        console.log("rows", rows);
+        for(let i = 0; i < rows.length; i++){
+            let cells = rows[i].children;
+            console.log('cells', cells)
+            let cells_len = cells.length;
+            for(let j = 0; j < cells_len; j++){
+                let value = cells[j].firstChild.value;
+                if(value){
+                    comment += value;
+                    if(j < cells_len - 1){
+                        comment += '\t';
+                    }
+                    else{
+                        comment += '\n';
+                    }
+                }
+            }
+        }
+        return comment;
+    }
+
 }
 
 module.exports.Calculator = Calculator;
