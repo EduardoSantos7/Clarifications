@@ -155,6 +155,17 @@ function getATM(atm_id, clarification, callback){
     });
 }
 
+function uploadRejoinder(rejoinder){
+    
+    return new Promise((resolve, reject) => {
+        let db_rejoinder = cloudant.db.use(process.env.REJOINDER_DB);
+        db_rejoinder.insert(rejoinder, rejoinder.ticket , (err, res) => {
+            if (err) reject(err);
+            resolve(res);
+        });
+    });
+}
+
 /*  Export functions */
 module.exports.loadInconsistencies = loadInconsistencies;
 module.exports.solveInconsistensy = solveInconsistensy;
@@ -165,3 +176,5 @@ module.exports.getATM = getATM;
 
 module.exports.searchTicket = searchTicket;
 module.exports.loadClarifications = loadClarifications;
+
+module.exports.uploadRejoinder = uploadRejoinder;

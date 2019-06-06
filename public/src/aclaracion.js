@@ -3,6 +3,7 @@
 var { searchTicket } = require('../src/utils/DBhelperFunctions')
 var { TicketInfoTable } = require('../src/utils/TicketInfoTable')
 var { Calculator } = require('../src/utils/Calculator')
+var { Rejoinder } = require('../src/utils/Rejoinder')
 var { createWindow, isDayInWindow } = require('../src/utils/dateTimeAlgorithms')
 /* Import helfer functions for interact with DB service */
 var {loadClarifications} = require('../src/utils/DBhelperFunctions')
@@ -13,6 +14,8 @@ const Swal = require('sweetalert2')
 
 /* Constants and Global variables */
 var ticket; // Save the merged info about clarification and atm.
+var ibm_calculator; // Save the IBM calculator object
+var client_calculator; // Save the client calculator object
 
 /* Recives 2 dictionaries and display their data */
 
@@ -104,10 +107,10 @@ function timeClarification(){
 	plot_zone.appendChild(container_row);
 
 	/* Insert IBM Calculator */
-	new Calculator(id_col_1, 'IBM', true, ticket);
+	ibm_calculator = new Calculator(id_col_1, 'IBM', true, ticket);
 
 	/* Insert Client Calculator */
-	new Calculator(id_col_2, 'BBVA', false, null);
+	client_calculator = new Calculator(id_col_2, 'BBVA', false, null);
 }
 
 /* Contribuyente clarification*/
@@ -145,13 +148,6 @@ function contribuyenteClarification(){
 
 	create_catalogue_select(subRow1);
 
-	// <div class="selectDiv pt-4">
-  //                   <select id="selectClarification" class="custom-select" onchange="chooseClarification()">
-  //                       <option>Tipo de aclaración</option>
-  //                       <option value="time">Tiempo</option>
-  //                       <option value="contribuyente">Contribuyente</option>
-  //                       <option value="both">Ambos</option>
-	//                   </select>
 	subRow2.appendChild(commentBox);
 	column_1.appendChild(subRow1);
 	column_1.appendChild(subRow2);
@@ -224,6 +220,7 @@ function create_catalogue_select(display_zone){
 
 	let select = document.createElement('select');
 	select.className = 'custom-select';
+	select.id = 'contribuyenteSelect';
 
 	for(let i = 0; i < descriptions.length; i++){
 		let option = document.createElement('option');
@@ -234,6 +231,70 @@ function create_catalogue_select(display_zone){
 	select.selectedIndex = "0";
 
 	display_zone.appendChild(select);
+
+}
+
+/* Return the calculation as string (ordered)*/
+
+function get_calculation_comment(){
+
+	let comment = 'IBM\n';
+	comment += ibm_calculator.getCalculationComment() + '\n';
+	comment += 'CLIENTE\n'
+	comment += ibm_calculator.getCalculationComment() + '\n';
+	comment += "AJUSTE DE TIEMPO: " + document.getElementById('ajusteTiempo').value + '\n';
+	comment += "NUEVAS HORAS NETAS: " + document.getElementById('nuevasHorasNetas').value + '\n';
+	comment += "NUEVA FECHA FIN: " + document.getElementById('resultDatetime').value + '\n';
+	return comment;
+}
+
+function update_clarification(){
+
+	let type = document.getElementById('selectClarification').value;
+	ticket['tipo'] = type.toUpperCase();
+
+	if(type === 'time'){
+		ticket['comentario'] = get_calculation_comment();
+	}
+	else if(type === 'contribuyente'){
+		let selector = document.getElementById('contribuyenteSelect');
+		let code =  selector.value;
+		let contribuyente = selector.options[selector.selectedIndex].text
+		ticket['contribuyente'] = contribuyente;
+		ticket['codigo'] = code;
+		ticket['comentario'] = document.getElementById('commentBoxContribuyente').value;
+	}
+	else if(type === 'both'){
+		let selector = document.getElementById('contribuyenteSelect');
+		let code =  selector.value;
+		let contribuyente = selector.options[selector.selectedIndex].text
+		ticket['contribuyente'] = contribuyente;
+		ticket['codigo'] = code;
+		ticket['comentario'] = document.getElementById('commentBoxContribuyente').value + '\n' + get_calculation_comment();;
+	}
+	ticket['nueva_fecha_fin'] = document.getElementById('resultDatetime').value;
+	
+	let rejoinder = new Rejoinder(ticket);
+
+	rejoinder.upload().then((resolve, reject) => {
+		if(resolve){
+			Swal.fire({
+				title: '¡Replica guardada!',
+				text: 'Se ha creado la replica!',
+				type: 'success',
+				confirmButtonText: 'Ok!'
+			});
+		}
+		else if(reject){
+			Swal.fire({
+                title: '¡No se pudo crear la replica!',
+                text: err,
+                type: 'danger',
+                confirmButtonText: 'Ok!'
+            });
+		}
+		cls();
+	});
 
 }
 
