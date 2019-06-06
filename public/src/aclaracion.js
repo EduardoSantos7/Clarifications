@@ -1,12 +1,11 @@
 /* This script handle clarification proccess*/
 
-var { searchTicket } = require('../src/utils/DBhelperFunctions')
+/* Import helfer functions for interact with DB service */
+var { searchTicket, loadClarifications } = require('../src/utils/DBhelperFunctions')
 var { TicketInfoTable } = require('../src/utils/TicketInfoTable')
 var { Calculator } = require('../src/utils/Calculator')
 var { Rejoinder } = require('../src/utils/Rejoinder')
 var { createWindow, isDayInWindow } = require('../src/utils/dateTimeAlgorithms')
-/* Import helfer functions for interact with DB service */
-var {loadClarifications} = require('../src/utils/DBhelperFunctions')
 /* Import class for collapse card */
 var {CollapseCardBoard} = require('../views/commons/collapse')
 
