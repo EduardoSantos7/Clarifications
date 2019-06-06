@@ -63,6 +63,31 @@ function loadClarifications(){
     });
 }
 
+/* Get all the documents in clarification */
+
+function loadRejoinders(){
+
+    var db = cloudant.db.use(process.env.REJOINDER_DB);
+    
+    db.list({include_docs:true}, function (err, data) {
+        if(err){
+            alert("Have trouble connecting to DB: ", err);
+        }
+        let options = {
+            'headers':["#", 'ATM', 'INICIO', 'FIN', 'NUEVA FECHA FIN', 'TIPO', 'REMEDY' ,'ACCIÓN'],
+            'fields':['atm', 'fecha_inicio', 'fecha_fin', 'nueva_fecha_fin', 'tipo' ,'tarea_remedy'],
+            'actionButtonText':'Replicar',
+            'type':'rejoinder',
+            'mainMenssage':"Tienes pendientes " + String(data.rows.length) + " replicas",
+            title:'ACLARACIONES'
+        }
+        let board = new CollapseCardBoard('collapseCardsContainer', 'displayZone', options)
+        for(let i = 0; i < data.rows.length; i++){
+            board.createCard(data.rows[i]);
+        }
+    });
+}
+
 /* Search in DB the ticket with input value as ID */
 
 function searchTicket(clarification_id){
@@ -72,6 +97,26 @@ function searchTicket(clarification_id){
 
 	if(ticket_id){
 		getTicket(ticket_id, (clarification) => 
+			getATM(clarification.atm , clarification, (clarification, atm) => {
+				displayTicketInfo(clarification, atm);
+		}));
+    }
+	else{
+		alert("Inserta un ID valido");
+	}
+}
+
+/* Search in DB the rejoinder with input value as ID */
+
+function searchRejoinder(clarification_id){
+
+    let ticket_id = document.getElementById('ticketInput').value || String(clarification_id) + '.0';
+    var db = cloudant.db.use(process.env.REJOINDER_DB);
+    cls()
+
+	if(ticket_id){
+        
+        getTicket(ticket_id, (clarification) => 
 			getATM(clarification.atm , clarification, (clarification, atm) => {
 				displayTicketInfo(clarification, atm);
 		}));
@@ -178,3 +223,5 @@ module.exports.searchTicket = searchTicket;
 module.exports.loadClarifications = loadClarifications;
 
 module.exports.uploadRejoinder = uploadRejoinder;
+module.exports.searchRejoinder = searchRejoinder;
+module.exports.loadRejoinders = loadRejoinders;
