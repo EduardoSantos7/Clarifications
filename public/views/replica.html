@@ -1,0 +1,109 @@
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../style/style.css">
+    <script src="../src/aclaracion.js"></script>
+    <script src="../src/replica.js"></script>
+    <script src="./commons/navBar.js"></script>
+    <script src="./commons/footer.js"></script>
+    <title>Replicas</title>
+</head>
+<body onload="navBar('navContainer'); footer('footerContainer'); loadRejoinders()">
+
+    <div id="navContainer"></div>
+
+    
+
+    <div id="content" class="container card m-2 mx-auto text-center mainContainer">
+        <div class="row">
+            <div class="col sidebar-offcanvas" id="sidebar">
+                <h3>Aclaraciones</h3>
+                <!-- Search form -->
+                <form class="form-inline md-form form-sm active-cyan active-cyan-2 m-2 pt-4">
+                    <div class="row">
+                        <input id="ticketInput" class="form-control form-control-sm ml-3 w-75 inputSidebar" type="text" placeholder="Search" aria-label="Search">
+                        <i id="iconSearch" class="fa fa-search m-1 btn btn-outline-primary my-2 my-sm-0" onclick="searchRejoinder()" aria-hidden="true"></i>
+                    </div>
+                </form>
+                
+                <div class="selectDiv pt-4">
+                    <select id="selectClarification" class="custom-select" onchange="chooseClarification()">
+                        <option>Tipo de aclaración</option>
+                        <option value="time">Tiempo</option>
+                        <option value="contribuyente">Contribuyente</option>
+                        <option value="both">Ambos</option>
+                    </select>
+                </div>
+
+                <div class="pt-4">
+                    <table id="resultTable" class="table table-bordered btn-table mt-2 small">
+                        
+                            <thead class="bg-primary text-white">
+                                    <tr>
+                                        <th>AJUSTE DE TIEMPO</th>
+                                    </tr>
+                                </thead>
+                                
+                                <tbody class="bg-white">
+                                    <tr>
+                                        <td>
+                                            <input type="time" id="ajusteTiempo" disabled>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                        
+                        <thead class="bg-primary text-white">
+                            <tr>
+                                <th>NUEVAS HORAS NETAS</th>
+                            </tr>
+                        </thead>
+                        
+                        <tbody class="bg-white">
+                            <tr>
+                                <td>
+                                    <input type="time" id="nuevasHorasNetas" disabled>
+                                </td>
+                            </tr>
+                        </tbody>
+
+                        <thead class="bg-primary text-white">
+                            <tr>
+                                <th>NUEVA FECHA FIN</th>
+                            </tr>
+                        </thead>
+
+                        <tbody class="bg-white">
+                                <tr>
+                                    <td>
+                                        <input type="datetime-local" id="resultDatetime">
+                                    </td>
+                                </tr>
+                            </tbody>
+                    </table>
+
+                    <div>
+                        <button class="btn btn-outline-primary" onclick="update_clarification()">
+                            Guardar
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+            <div class="col" id="main">
+                <div id="TicketInfoTable"></div>
+                <div id="displayZone"></div>
+
+            </div>
+        </div>
+        
+    </div>
+
+    <!-- Footer -->
+    <div id="footerContainer"></div>
+    <!-- Footer -->
+</body>
+</html>

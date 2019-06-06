@@ -170,6 +170,10 @@ class CollapseTable{
           console.log("asigne aqui", obj)
           action.setAttribute('onclick', "searchTicket("+ obj._id +")");
         }
+        else if(this.options['type'] === 'rejoinder'){
+          console.log("asigne aqui", obj)
+          action.setAttribute('onclick', "searchRejoinder("+ obj._id +")");
+        }
 
         accion.appendChild(action);
 
