@@ -178,3 +178,12 @@ a.socialIcon:hover, .socialHoverClass {
 	border-radius: 5%;
 }
 
+#commentBoxContribuyente{
+	width: 370px;
+}
+
+.col-centered{
+	float: none;
+	margin: 0 auto;
+}
+

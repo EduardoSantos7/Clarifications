@@ -21,11 +21,64 @@ function loadInconsistencies(){
         if(err){
             alert("Have trouble connecting to DB: ", err);
         }
-        let board = new CollapseCardBoard('collapseCardsContainer', 'content')
+        let options = {
+            'headers':["#", 'INICIO', 'FIN', 'HORAS NETAS', 'SEMAFORO', 'ARCHIVO', 'ACCIÓN'],
+            'fields':['fecha_inicio', 'fecha_fin', 'horas_netas', 'semaforo', 'archivo'],
+            'actionButtonText':'Agregar',
+            'type':'inconsistency',
+            'title':'INCONSISTENCIAS',
+            'mainMenssage':`Los siguientes tickets no pueden 
+                                ser agregados a la BD de Aclaraciones 
+                                    hasta que se resuelvan los confictos`
+        }
+        let board = new CollapseCardBoard('collapseCardsContainer', 'content', options)
         for(let i = 0; i < data.docs.length; i++){
             board.createCard(data.docs[i]);
         }
     });
+}
+
+/* Get all the documents in clarification */
+
+function loadClarifications(){
+
+    var db = cloudant.db.use(process.env.CLARIFICATION_DB);
+    
+    db.list({include_docs:true}, function (err, data) {
+        if(err){
+            alert("Have trouble connecting to DB: ", err);
+        }
+        let options = {
+            'headers':["#", 'ATM', 'INICIO', 'FIN', 'HORAS NETAS', 'SEMAFORO', 'REMEDY' ,'ACCIÓN'],
+            'fields':['atm', 'fecha_inicio', 'fecha_fin', 'horas_netas', 'remedy' ,'semaforo'],
+            'actionButtonText':'Aclarar',
+            'type':'clarification',
+            'mainMenssage':"Tienes pendientes " + String(data.rows.length) + " aclaraciones",
+            title:'ACLARACIONES'
+        }
+        let board = new CollapseCardBoard('collapseCardsContainer', 'displayZone', options)
+        for(let i = 0; i < data.rows.length; i++){
+            board.createCard(data.rows[i]);
+        }
+    });
+}
+
+/* Search in DB the ticket with input value as ID */
+
+function searchTicket(clarification_id){
+
+	let ticket_id = document.getElementById('ticketInput').value || String(clarification_id) + '.0';
+    cls()
+
+	if(ticket_id){
+		getTicket(ticket_id, (clarification) => 
+			getATM(clarification.atm , clarification, (clarification, atm) => {
+				displayTicketInfo(clarification, atm);
+		}));
+    }
+	else{
+		alert("Inserta un ID valido");
+	}
 }
 
 /* Update the solved property of inconsistency and create a new clarification */
@@ -102,6 +155,17 @@ function getATM(atm_id, clarification, callback){
     });
 }
 
+function uploadRejoinder(rejoinder){
+    
+    return new Promise((resolve, reject) => {
+        let db_rejoinder = cloudant.db.use(process.env.REJOINDER_DB);
+        db_rejoinder.insert(rejoinder, rejoinder.ticket , (err, res) => {
+            if (err) reject(err);
+            resolve(res);
+        });
+    });
+}
+
 /*  Export functions */
 module.exports.loadInconsistencies = loadInconsistencies;
 module.exports.solveInconsistensy = solveInconsistensy;
@@ -109,3 +173,8 @@ module.exports.returnToInconsistency = returnToInconsistency;
 
 module.exports.getTicket = getTicket;
 module.exports.getATM = getATM;
+
+module.exports.searchTicket = searchTicket;
+module.exports.loadClarifications = loadClarifications;
+
+module.exports.uploadRejoinder = uploadRejoinder;
