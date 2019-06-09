@@ -9,7 +9,7 @@ function footer(container_id){
             <div class="footer-copyright text-center py-4 text-white">© 2019 Copyright:
                 <span class="">
                     <span class="col">
-                        <a href="https://mdbootstrap.com/education/bootstrap/"> Eduardo Santos & Israel Pérez & Aime Rangel</a>
+                        <a href="./creditos.html"> Eduardo Santos & Israel Pérez</a>
                     </span>
             
                     <!-- Add font awesome icons for social contact -->
