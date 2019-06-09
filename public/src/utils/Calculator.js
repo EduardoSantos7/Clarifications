@@ -140,20 +140,42 @@ class Calculator{
             let cells_len = cells.length;
             for(let j = 0; j < cells_len; j++){
                 let value = cells[j].firstChild.value;
-                if(value){
-                    comment += value;
-                    if(j < cells_len - 1){
-                        comment += '\t';
-                    }
-                    else{
-                        comment += '\n';
-                    }
+                comment += value;
+                if(j < cells_len - 1){
+                    comment += '\t';
+                }
+                else{
+                    comment += '\n';
                 }
             }
         }
         return comment;
     }
 
+    setCalculationComment(comment_list){
+
+        let rows = this.tbody.children;
+
+        if(rows.length < comment_list.length){
+            let missing_rows = comment_list.length - rows.length;
+            for(let i = 0 ; i < missing_rows; i++){
+                this.addRow();
+            }
+        }
+
+        // Read again the amount of rows
+        rows = this.tbody.children;
+
+        for(let i = 0; i < comment_list.length; i++){
+
+            let cells = rows[i].children;
+            let cells_len = cells.length;
+            let values = comment_list[i].split('\t');
+            for(let j = 0; j < cells_len; j++){
+                cells[j].firstChild.value = values[j];
+            }
+        }
+    }
 }
 
 module.exports.Calculator = Calculator;

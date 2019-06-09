@@ -79,7 +79,8 @@ function loadRejoinders(){
             'actionButtonText':'Replicar',
             'type':'rejoinder',
             'mainMenssage':"Tienes pendientes " + String(data.rows.length) + " replicas",
-            title:'ACLARACIONES'
+            'title':'REPLICAS',
+            'rejoinderButtonText':'Guardar'
         }
         let board = new CollapseCardBoard('collapseCardsContainer', 'displayZone', options)
         for(let i = 0; i < data.rows.length; i++){
@@ -119,7 +120,13 @@ function searchRejoinder(clarification_id){
         getTicket(ticket_id, (clarification) => 
 			getATM(clarification.atm , clarification, (clarification, atm) => {
 				displayTicketInfo(clarification, atm);
-		}));
+        }));
+        
+        db.get(ticket_id, (err, res) => {
+            if(err) alert(err);
+
+            loadRejoinderData(res);
+        })
     }
 	else{
 		alert("Inserta un ID valido");
@@ -204,8 +211,14 @@ function uploadRejoinder(rejoinder){
     
     return new Promise((resolve, reject) => {
         let db_rejoinder = cloudant.db.use(process.env.REJOINDER_DB);
+        db_rejoinder.get(rejoinder.ticket, (err, res) => {
+            if(res){
+                rejoinder['_rev'] = res._rev;
+            }
+        });
+        console.log(rejoinder)
         db_rejoinder.insert(rejoinder, rejoinder.ticket , (err, res) => {
-            if (err) reject(err);
+            if (err){console.log(err); reject(err)};
             resolve(res);
         });
     });
