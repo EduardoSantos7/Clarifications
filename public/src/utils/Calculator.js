@@ -175,6 +175,12 @@ class Calculator{
                 cells[j].firstChild.value = values[j];
             }
         }
+
+        // If something was loaded, refresh the output
+
+        if(comment_list.length > 1){
+            totalTime(this);
+        }
     }
 }
 

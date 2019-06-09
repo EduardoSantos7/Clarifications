@@ -8,6 +8,7 @@ var {PythonShell} = require('python-shell');
 
 var export_ids = []; // Save the IDs
 var OUT_PATH = ""; // String for save output paths
+var current_rejoinder = {};
 
 function prepareExport(rejoinder_id){
 
@@ -89,6 +90,8 @@ function exportRejoinders(){
 
 function loadRejoinderData(rejoinder){
 
+    console.log(rejoinder)
+    current_rejoinder = rejoinder
     ticket = rejoinder;
     chooseClarification(rejoinder.tipo);
     switch(rejoinder.tipo.toLowerCase()){
@@ -168,4 +171,64 @@ function send(){
         });
         console.log(results)
       });
+}
+
+function update_rejoinder(){
+
+    console.log(current_rejoinder)
+	let type = current_rejoinder.tipo.toLowerCase();
+
+	if(type === 'time'){
+		current_rejoinder['comentario'] = get_calculation_comment();
+	}
+	else if(type === 'contribuyente'){
+		let selector = document.getElementById('contribuyenteSelect');
+		let code =  selector.value;
+		let contribuyente = selector.options[selector.selectedIndex].text
+		current_rejoinder['contribuyente'] = contribuyente;
+		current_rejoinder['codigo'] = code;
+		current_rejoinder['comentario'] = document.getElementById('commentBoxContribuyente').value;
+	}
+	else if(type === 'both'){
+		let selector = document.getElementById('contribuyenteSelect');
+		let code =  selector.value;
+		let contribuyente = selector.options[selector.selectedIndex].text
+		current_rejoinder['contribuyente'] = contribuyente;
+		current_rejoinder['codigo'] = code;
+		current_rejoinder['comentario'] = document.getElementById('commentBoxContribuyente').value + '\n' + get_calculation_comment();;
+	}
+	current_rejoinder['nueva_fecha_fin'] = document.getElementById('resultDatetime').value;
+	
+	let rejoinder = new Rejoinder(current_rejoinder);
+
+	if(!rejoinder){
+		Swal.fire({
+			title: '¡No se pudo crear la replica!',
+			text: err,
+			type: 'danger',
+			confirmButtonText: 'Ok!'
+		});
+	}
+
+	rejoinder.upload().then((resolve, reject) => {
+		if(resolve){
+			Swal.fire({
+				title: '¡Replica guardada!',
+				text: 'Se ha creado la replica!',
+				type: 'success',
+				confirmButtonText: 'Ok!'
+			});
+		}
+		else if(reject){
+			Swal.fire({
+                title: '¡No se pudo crear la replica!',
+                text: err,
+                type: 'error',
+                confirmButtonText: 'Ok!'
+            });
+		}
+		cls();
+		loadRejoinders();
+	});
+
 }
