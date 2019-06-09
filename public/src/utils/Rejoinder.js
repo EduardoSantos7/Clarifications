@@ -10,7 +10,7 @@ class Rejoinder{
         this.fecha_inicio = ticket['fecha_inicio'];
         this.fecha_fin = ticket['fecha_fin'];
         this.falla = ticket['falla'];
-        this.tarea_remedy = ticket['remedy'];
+        this.tarea_remedy = ticket['remedy'] || ticket['tarea_remedy'];
         this.nueva_fecha_inicio = ticket['fecha_inicio'];
         this.nueva_fecha_fin = ticket['nueva_fecha_fin'];
         this.contribuyente = ticket['contribuyente'] || '';
@@ -20,7 +20,6 @@ class Rejoinder{
         this.aplica = '';
         this.comentario = '';
         this.comentario_aclaracion = ticket['comentario'];
-        this.replicas = ticket['replicas'] || []; // Each element in the array is a column in the file
         this.banca = ticket['banca'];
         this.archivo = ticket['archivo'];
         this.ciudad = ticket['ciudad'];
@@ -48,6 +47,10 @@ class Rejoinder{
         this.sitio = ticket['sitio'];
         this.tipo = ticket['tipo'];
         this.tipodeautoservicio = ticket['tipodeautoservicio'];
+        if(ticket['replicas']){
+            ticket['replicas'].push(ticket['comentario'])
+        }
+        this.replicas = ticket['replicas'] || []; // Each element in the array is a column in the file
     }
 
     upload(){
