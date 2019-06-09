@@ -215,11 +215,11 @@ function uploadRejoinder(rejoinder){
             if(res){
                 rejoinder['_rev'] = res._rev;
             }
-        });
-        console.log(rejoinder)
-        db_rejoinder.insert(rejoinder, rejoinder.ticket , (err, res) => {
-            if (err){console.log(err); reject(err)};
-            resolve(res);
+            console.log(rejoinder)
+            db_rejoinder.insert(rejoinder, rejoinder.ticket , (err, res) => {
+                if (err){console.log(err); reject(err)};
+                resolve(res);
+            });
         });
     });
 }
