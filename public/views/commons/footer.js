@@ -19,6 +19,9 @@ function footer(container_id){
                             <li><a href="https://www.facebook.com/eduardosantos7" class="icoFacebook" title="Facebook"><i class="fa fa-facebook"></i></a></li>
                             <li><a href="https://twitter.com/EduardoLSantos" class="icoTwitter" title="Twitter"><i class="fa fa-twitter"></i></a></li>
                             <li><a href="https://www.linkedin.com/in/eduardosantosdelgado/" class="icoLinkedin" title="Linkedin"><i class="fa fa-linkedin"></i></a></li>
+                            <li><a href="https://github.com/EduardoSantos7" class="icoGithub" title="Github"><i class="fa fa-github"></i></a></li>
+                            <li><a href="https://stackoverflow.com/users/8073155/eduardo-luis-santos" class="icoStackOverFlow" title="Github"><i class="fa fa-stack-overflow"></i></a></li>
+                            <li><a href="./dbmanager.html" class="icoFacebook" title="DB Manager"><i class="fa fa-database"></i></a></li>
                         </ul>
                     </span>
                 </span>
