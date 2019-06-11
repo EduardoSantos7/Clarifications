@@ -225,6 +225,7 @@ function uploadRejoinder(rejoinder){
 }
 
 /* Return an array in which element is the length of each DB */
+
 function getAllRecordDbs(){
 
     return new Promise((resolve, reject) => {
@@ -244,7 +245,20 @@ function getAllRecordDbs(){
             }); 
         });
     });
+}
 
+/* Get all docs in indicated DB */
+
+function getAllRecords(db_name){
+    return new Promise((resolve) => {
+        var target_db = cloudant.db.use(db_name);
+
+        target_db.list({include_docs:true}, (err, data) => {
+            if(err) console.log(err);
+
+            resolve(data.rows);
+        });
+    });
 }
 
 /*  Export functions */
@@ -263,3 +277,5 @@ module.exports.searchRejoinder = searchRejoinder;
 module.exports.loadRejoinders = loadRejoinders;
 
 module.exports.getAllRecordDbs = getAllRecordDbs;
+
+module.exports.getAllRecords = getAllRecords;
