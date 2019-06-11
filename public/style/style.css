@@ -55,6 +55,12 @@ ul.social-network li {
 .social-network a.icoLinkedin {
 	background-color:#007bb7;
 }
+.social-network a.icoGithub {
+	background-color:black;
+}
+.social-network a.icoStackOverFlow {
+	background-color: #F56505;
+}
 .social-network a.icoInstagram i, .social-network a.icoFacebook i, .social-network a.icoTwitter i, 
 .social-network a.icoVimeo i, .social-network a.icoLinkedin i {
 	color:#fff;
