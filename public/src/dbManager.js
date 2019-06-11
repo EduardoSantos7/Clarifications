@@ -70,10 +70,11 @@ function performTask(){
 		  }
           switch(task){
               case 'download':
+					sendTask(target_db, 'download');
 				break;
 			  case 'clean':
-				  console.log("target", target_db)
-				  sendTask(target_db, 'clean');
+				sendTask(target_db, 'clean');
+				break;
           }
         }
     });
@@ -98,6 +99,7 @@ function sendTask(target_db, task){
 			type: 'success',
 			confirmButtonText: 'Entendido!'
 		});
+		console.log(results);
 		// Reload charts
 		loadCharts();
       });
