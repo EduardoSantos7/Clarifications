@@ -23,6 +23,9 @@ function navBar(container_id){
                 <li class="nav-item">
                     <a class="nav-link" href="./replica.html">Réplica</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="./estadisticas.html">Estadísticas</a>
+                </li>
             </ul>
             <form class="form-inline m-2">
               <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
