@@ -16,9 +16,13 @@ function loadCharts(){
     
     getBBVAServiceReport();
 
+    getFailuresPerModels();
+
     getSemaphoreClarifications();
 
     getSemaphoreWithoutClarifications();
+
+    getSemaphoresPerState();
 }
 
 function getBBVAServiceReport(){
@@ -60,6 +64,30 @@ function getBBVAServiceReport(){
               });
         });
     });
+}
+
+function getFailuresPerModels(){
+
+    getAllRecords(process.env.CLARIFICATION_DB).then( (documents) => {
+        getAllRecords(process.env.BDI_DB_ROW).then( (bdi_docs) => {
+            console.log(bdi_docs)
+            countSemaphoresByModels(documents, bdi_docs).then( (result) => {
+                var popCanvas = document.getElementById("canvas2");
+                var popCanvas = document.getElementById("canvas2").getContext("2d");
+                var myDoughnutChart = new Chart(popCanvas, {
+                    type: 'doughnut',
+                    data: {
+                        labels: result['labels'],
+                        datasets: [{
+                          label: 'Registros en BDs',
+                          data: result['data'],
+                          backgroundColor: getRandomColor(result['data'].length)
+                        }]
+                      }
+                });
+            });
+        });
+    }); 
 }
 
 function getSemaphoreClarifications(){
@@ -175,6 +203,94 @@ function getSemaphoreWithoutClarifications(){
     });
 }
 
+function getSemaphoresPerState(){
+
+    getAllRecords(process.env.CLARIFICATION_DB).then( (documents) => {
+        getAllRecords(process.env.BDI_DB_ROW).then( (bdi_docs) => {
+            countSemaphoresByState(documents, bdi_docs).then( (result) => {
+                var popCanvas = document.getElementById("canvas5");
+                var popCanvas = document.getElementById("canvas5").getContext("2d");
+                var popCanvas2 = document.getElementById("canvas6");
+                var popCanvas2 = document.getElementById("canvas6").getContext("2d");
+                var chart = new Chart(popCanvas, {
+                    type: 'horizontalBar',
+                    data: {
+                        labels: result['labels'],
+                        datasets: [{
+                          label: 'Registros en BDs',
+                          data: result['yellow'],
+                          backgroundColor: getRandomColor(result['yellow'].length)
+                        }]
+                      },
+                    options: {
+                        scales: {
+                            xAxes: [{
+                                ticks: {
+                                    min: 0 // Edit the value according to what you need
+                                }
+                            }],
+                            yAxes: [{
+                                stacked: true
+                            }]
+                        }
+                    }
+                });
+                var chart = new Chart(popCanvas2, {
+                    type: 'horizontalBar',
+                    data: {
+                        labels: result['labels'],
+                        datasets: [{
+                          label: 'Registros en BDs',
+                          data: result['red'],
+                          backgroundColor: getRandomColor(result['red'].length)
+                        }]
+                      },
+                    options: {
+                        scales: {
+                            xAxes: [{
+                                ticks: {
+                                    min: 0 // Edit the value according to what you need
+                                }
+                            }],
+                            yAxes: [{
+                                stacked: true
+                            }]
+                        }
+                    }
+                });
+            });
+        });
+    });    
+
+}
+
+function countSemaphoresByModels(documents, bdi_docs){
+    return new Promise(resolve => {
+        
+        let models  ={};
+        
+        for(let i = 0; i < documents.length; i++){
+            let model = bdi_docs.find((atm) => {
+                if(atm.doc._id === documents[i].doc.atm)  return (atm) }
+            ).doc.modelo
+                
+            if(models[model]){
+                models[model]++;
+            }
+            else{
+                models[model] = 1;
+            }
+        }
+        models = orderObject(models);
+        console.log(models);
+        let result = {
+            'labels': Object.keys(models),
+            'data': Object.values(models)
+        }
+        resolve(result)
+    });
+}
+
 /* Returns an object with dates as key and count as value */
 
 function countByDate(documents){
@@ -251,6 +367,82 @@ function countSemaphoresByDate(documents){
                 }
                 else if(semaphore.includes('abierto')){
                     dates[start_date][4]++;
+                }
+            }
+        }
+        dates = orderObject(dates);
+        let keys = Object.keys(dates);
+        for(let i = 0; i < keys.length; i++){
+            not_count.push(dates[keys[i]][0]);
+            red.push(dates[keys[i]][1]);
+            yellow.push(dates[keys[i]][2]);
+            green.push(dates[keys[i]][3]);
+            open.push(dates[keys[i]][4]);
+        }
+        let result = {
+            'labels': Object.keys(dates),
+            'not_count': not_count,
+            'red': red,
+            'yellow': yellow,
+            'green': green,
+            'open': open
+        }
+        resolve(result)
+    });
+}
+
+function countSemaphoresByState(documents, bdi_docs){
+    return new Promise(resolve => {
+        
+        let dates  ={};
+        let not_count = [];
+        let red = [];
+        let yellow = [];
+        let green = [];
+        let open = [];
+        
+        for(let i = 0; i < documents.length; i++){
+            let state = bdi_docs.find((atm) => {
+                if(atm.doc._id === documents[i].doc.atm)  return (atm) }
+            ).doc.estado
+                
+            if(dates[state]){
+
+                let semaphore = documents[i].doc['semaforo'].toLowerCase();
+                if(semaphore.includes('no cuenta')){
+                    dates[state][0]++;
+                }
+                else if(semaphore.includes('rojo')){
+                    dates[state][1]++;
+                }
+                else if(semaphore.includes('amarillo')){
+                    dates[state][2]++;
+                }
+                else if(semaphore.includes('verde')){
+                    dates[state][3]++;
+                }
+                else if(semaphore.includes('abierto')){
+                    dates[state][4]++;
+                }
+            }
+            else{
+                dates[state] = [0,0,0,0,0];
+
+                let semaphore = documents[i].doc['semaforo'].toLowerCase();
+                if(semaphore.includes('no cuenta')){
+                    dates[state][0]++;
+                }
+                else if(semaphore.includes('rojo')){
+                    dates[state][1]++;
+                }
+                else if(semaphore.includes('amarillo')){
+                    dates[state][2]++;
+                }
+                else if(semaphore.includes('verde')){
+                    dates[state][3]++;
+                }
+                else if(semaphore.includes('abierto')){
+                    dates[state][4]++;
                 }
             }
         }

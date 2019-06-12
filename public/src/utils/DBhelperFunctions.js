@@ -250,11 +250,14 @@ function getAllRecordDbs(){
 /* Get all docs in indicated DB */
 
 function getAllRecords(db_name){
-    return new Promise((resolve) => {
+    return new Promise((resolve, rejected) => {
         var target_db = cloudant.db.use(db_name);
 
         target_db.list({include_docs:true}, (err, data) => {
-            if(err) console.log(err);
+            if(err) {
+                console.log(err);
+                return;
+            };
 
             resolve(data.rows);
         });
