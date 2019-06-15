@@ -8,7 +8,18 @@ var { getAllRecords  } = require('../src/utils/DBhelperFunctions')
 var {PythonShell} = require('python-shell');
 /* Import path for stablish the python scripts path */
 var path = require('path');
-const Swal = require('sweetalert2')
+const Swal = require('sweetalert2');
+const flatpickr = require("flatpickr");
+
+
+var low_date_range = null;
+var high_date_range = null;
+var barChart = null;
+var myDoughnutChart = null;
+var barChartSem = null;
+var barChartSem2 = null;
+var semState = null;
+
 
 /* Display all the charts */
 
@@ -16,22 +27,52 @@ function loadCharts(){
 
     getAllRecords(process.env.CLARIFICATION_DB).then( (documents) => {
         
-        getBBVAServiceReport(documents);
+        let clarification_document_backup = filter_date_range(documents);
         
-        getFailuresPerModels(documents);
+        getBBVAServiceReport(clarification_document_backup);
         
-        getSemaphoreWithoutClarifications(documents);
+        getFailuresPerModels(clarification_document_backup);
         
-        getSemaphoresPerState(documents);
+        getSemaphoreWithoutClarifications(clarification_document_backup);
+        
+        getSemaphoresPerState(clarification_document_backup);
     });
     
     getAllRecords(process.env.REJOINDER_DB).then( (documents) => {
 
-        getSemaphoreClarifications(documents);
+        let replication_document_backup = filter_date_range(documents);
+        
+        getSemaphoreClarifications(replication_document_backup);
     });
+}
 
+function create_date_range(){
 
+    let range_selector = document.getElementById('rangeSelector');
 
+    flatpickr(range_selector, {
+        enableTime: true,
+        dateFormat: "Y-m-d H:i",
+        maxDate: "today",
+        mode: "range",
+        time_24hr: true,
+        onClose: function(selectedDates) {
+            low_date_range = selectedDates[0];
+            high_date_range = selectedDates[1];
+            loadCharts();
+        }
+    });
+}
+
+function filter_date_range(documents){
+
+    if(!low_date_range || !high_date_range) return documents;
+
+    documents = documents.filter(function(document){
+        let start = new Date ( document.doc['fecha_inicio']);
+        return start >= low_date_range && start <= high_date_range;
+    });
+    return documents;
 }
 
 function getBBVAServiceReport(documents){
@@ -40,7 +81,11 @@ function getBBVAServiceReport(documents){
         var popCanvas = document.getElementById("canvas1");
         var popCanvas = document.getElementById("canvas1").getContext("2d");
 
-        var barChart = new Chart(popCanvas, {
+        if(barChart){
+            barChart.destroy();
+        }
+
+        barChart = new Chart(popCanvas, {
             type: 'bar',
             data: {
                 labels: count[0],
@@ -80,7 +125,12 @@ function getFailuresPerModels(documents){
         countSemaphoresByModels(documents, bdi_docs).then( (result) => {
             var popCanvas = document.getElementById("canvas2");
             var popCanvas = document.getElementById("canvas2").getContext("2d");
-            var myDoughnutChart = new Chart(popCanvas, {
+
+            if(myDoughnutChart){
+                myDoughnutChart.destroy();
+            }
+
+            myDoughnutChart = new Chart(popCanvas, {
                 type: 'doughnut',
                 data: {
                     labels: result['labels'],
@@ -101,7 +151,11 @@ function getSemaphoreClarifications(documents){
         var popCanvas = document.getElementById("canvas3");
         var popCanvas = document.getElementById("canvas3").getContext("2d");
 
-        var barChart = new Chart(popCanvas, {
+        if(barChartSem){
+            barChartSem.destroy()
+        }
+        
+        barChartSem = new Chart(popCanvas, {
             type: 'bar',
             data: {
                 labels: result['labels'],
@@ -158,7 +212,11 @@ function getSemaphoreWithoutClarifications(documents){
         var popCanvas = document.getElementById("canvas4");
         var popCanvas = document.getElementById("canvas4").getContext("2d");
 
-        var barChart = new Chart(popCanvas, {
+        if(barChartSem2){
+            barChartSem2.destroy();
+        }
+        
+        barChartSem2 = new Chart(popCanvas, {
             type: 'bar',
             data: {
                 labels: result['labels'],
@@ -212,7 +270,12 @@ function getSemaphoresPerState(documents){
             var popCanvas = document.getElementById("canvas5").getContext("2d");
             var popCanvas2 = document.getElementById("canvas6");
             var popCanvas2 = document.getElementById("canvas6").getContext("2d");
-            var chart = new Chart(popCanvas, {
+            
+            if(semState){
+                semState.destroy();
+            }
+            
+            semState = new Chart(popCanvas, {
                 type: 'horizontalBar',
                 data: {
                     labels: result['labels'],
@@ -493,6 +556,7 @@ function getRandomColor(n) {
 /* Return a list with the average of the input */
 
 function getAverageList(data_list){
+    if(!data_list.length) return;
     let sum = data_list.reduce((previous, current) => current += previous);
     let avg = sum / data_list.length;
     return Array(data_list.length).fill(avg)
