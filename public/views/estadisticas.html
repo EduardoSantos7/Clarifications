@@ -1,0 +1,126 @@
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="../style/style.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">  
+    <script src="./commons/navBar.js"></script>
+    <script src="./commons/footer.js"></script>
+    <script src="../src/insights.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <title>DB Manager</title>
+</head>
+<body onload="navBar('navContainer'); footer('footerContainer'); loadCharts(); create_date_range();">
+
+    <div id="navContainer"></div>
+
+    <div class="container card mt-2">
+        <div class="row col-centered bg-light" style="height: 25px;">
+            <div class="col-centered "><i id="rangeSelector" class="fa fa-calendar m-1"></i></div>
+        </div>
+        
+        <div class="row m-3">
+
+            <div class="col-sm-6">
+                <div class="card text-center">
+                    <div class="card-header">
+                        <h5 class="card-title">Reportes de Servicio BBVA</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="canvas1"></canvas>
+                    </div>
+                    <div class="card-footer text-muted">
+                        2 days ago
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-sm-6">
+                <div class="card text-center">
+                    <div class="card-header">
+                        <h5 class="card-title">Fallas por modelo</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="canvas2"></canvas>
+                    </div>
+                    <div class="card-footer text-muted">
+                        2 days ago
+                    </div>
+                </div>
+            </div>
+                  
+            </div>
+
+            <div class="row m-3">
+
+                    <div class="col-sm-6">
+                        <div class="card text-center">
+                            <div class="card-header">
+                                <h5 class="card-title">Semaforo con aclaración</h5>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="canvas3"></canvas>
+                            </div>
+                            <div class="card-footer text-muted">
+                                2 days ago
+                            </div>
+                        </div>
+                    </div>
+    
+                    <div class="col-sm-6">
+                        <div class="card text-center">
+                            <div class="card-header">
+                                <h5 class="card-title">Semaforo sin aclaración</h5>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="canvas4"></canvas>
+                            </div>
+                            <div class="card-footer text-muted">
+                                2 days ago
+                            </div>
+                        </div>
+                    </div>
+                      
+            </div>
+
+            <div class="row m-3">
+
+                    <div class="col-sm-6">
+                        <div class="card text-center">
+                            <div class="card-header">
+                                <h5 class="card-title">Amarillos por estado</h5>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="canvas5"></canvas>
+                            </div>
+                            <div class="card-footer text-muted">
+                                2 days ago
+                            </div>
+                        </div>
+                    </div>
+    
+                    <div class="col-sm-6">
+                        <div class="card text-center">
+                            <div class="card-header">
+                                <h5 class="card-title">Rojos por estado</h5>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="canvas6"></canvas>
+                            </div>
+                            <div class="card-footer text-muted">
+                                2 days ago
+                            </div>
+                        </div>
+                    </div>
+                      
+            </div>
+    </div>
+
+    <!-- Footer -->
+    <div id="footerContainer"></div>
+    <!-- Footer -->
+    
+</body>
+</html>

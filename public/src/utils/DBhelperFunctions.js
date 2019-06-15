@@ -224,6 +224,46 @@ function uploadRejoinder(rejoinder){
     });
 }
 
+/* Return an array in which element is the length of each DB */
+
+function getAllRecordDbs(){
+
+    return new Promise((resolve, reject) => {
+        var inconsistency_db = cloudant.db.use(process.env.INCONSISTENCY_DB);
+        var rejoinder_db = cloudant.db.use(process.env.REJOINDER_DB);
+        var clarification_db = cloudant.db.use(process.env.CLARIFICATION_DB);
+    
+        inconsistency_db.list(function (err, inconsistencies) {
+            console.log(err, inconsistencies);
+            clarification_db.list(function (err, clarifications) {
+                console.log(err, clarifications);
+                rejoinder_db.list(function (err, rejoinders) {
+                    console.log(err, rejoinders);
+
+                    resolve([clarifications.total_rows, inconsistencies.total_rows, rejoinders.total_rows]);
+                });
+            }); 
+        });
+    });
+}
+
+/* Get all docs in indicated DB */
+
+function getAllRecords(db_name){
+    return new Promise((resolve, rejected) => {
+        var target_db = cloudant.db.use(db_name);
+
+        target_db.list({include_docs:true}, (err, data) => {
+            if(err) {
+                console.log(err);
+                return;
+            };
+
+            resolve(data.rows);
+        });
+    });
+}
+
 /*  Export functions */
 module.exports.loadInconsistencies = loadInconsistencies;
 module.exports.solveInconsistensy = solveInconsistensy;
@@ -238,3 +278,7 @@ module.exports.loadClarifications = loadClarifications;
 module.exports.uploadRejoinder = uploadRejoinder;
 module.exports.searchRejoinder = searchRejoinder;
 module.exports.loadRejoinders = loadRejoinders;
+
+module.exports.getAllRecordDbs = getAllRecordDbs;
+
+module.exports.getAllRecords = getAllRecords;
