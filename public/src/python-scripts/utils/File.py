@@ -167,7 +167,7 @@ class File():
         if type(dfs) == list:
             print("here")
             self.data = pd.concat([self.data] +  dfs, **concat_options)
-        elif dfs and not dfs.empty:
+        elif not dfs.empty:
             print("here2")
             self.data = pd.concat([self.data, dfs], **concat_options)
 

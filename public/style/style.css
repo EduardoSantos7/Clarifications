@@ -55,6 +55,12 @@ ul.social-network li {
 .social-network a.icoLinkedin {
 	background-color:#007bb7;
 }
+.social-network a.icoGithub {
+	background-color:black;
+}
+.social-network a.icoStackOverFlow {
+	background-color: #F56505;
+}
 .social-network a.icoInstagram i, .social-network a.icoFacebook i, .social-network a.icoTwitter i, 
 .social-network a.icoVimeo i, .social-network a.icoLinkedin i {
 	color:#fff;
@@ -106,3 +112,84 @@ a.socialIcon:hover, .socialHoverClass {
 .fa-warning{
 	color: #f1b612;
 }
+
+.mainContainer{
+	max-width: 1250px;
+}
+
+/* Sidebar */
+#sidebar {
+	width: inherit;
+	min-width: 150px;
+	max-width: 210px;
+	background-color:#f5f5f5;
+	float: left;
+	height: 100%; /* This line limits the height */
+	position:relative;
+	overflow-y:auto;
+	overflow-x:hidden;
+}
+
+/*
+ * off Canvas sidebar
+ * --------------------------------------------------
+ */
+ @media screen and (max-width: 768px) {
+  .row-offcanvas {
+    position: relative;
+    -webkit-transition: all 0.25s ease-out;
+    -moz-transition: all 0.25s ease-out;
+    transition: all 0.25s ease-out;
+    width:calc(100% + 190px);
+  }
+    
+  .row-offcanvas-left
+  {
+    left: -190px;
+  }
+
+  .row-offcanvas-left.active {
+    left: 0;
+  }
+
+  .sidebar-offcanvas {
+    position: absolute;
+    top: 0;
+  }
+}
+
+.inputSidebar{
+	max-width: 100px;
+	background-color: transparent;
+}
+
+.active-cyan-2 input[type=text]:focus:not([readonly]) {
+	border-bottom: 1px solid #4dd0e1;
+	box-shadow: 0 0px 0 0 #4dd0e1;
+}
+.active-cyan input[type=text] {
+	border-bottom: 1px solid #4dd0e1;
+	box-shadow: 0 0px 0 0 #4dd0e1;
+}
+.active-cyan .fa, .active-cyan-2 .fa {
+	color: #4dd0e1;
+}
+
+#iconSearch:hover{
+	color: white
+}
+
+#resultDatetime{
+	width: 155px;
+	border-radius: 5%;
+}
+
+#commentBoxContribuyente{
+	width: 370px;
+}
+
+.col-centered{
+	float: none;
+	margin: 0 auto;
+}
+
