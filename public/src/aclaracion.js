@@ -1,18 +1,28 @@
 /* This script handle clarification proccess*/
 
-var { searchTicket } = require('../src/utils/DBhelperFunctions')
+/* Import helfer functions for interact with DB service */
+var { searchTicket, loadClarifications } = require('../src/utils/DBhelperFunctions')
 var { TicketInfoTable } = require('../src/utils/TicketInfoTable')
 var { Calculator } = require('../src/utils/Calculator')
 var { Rejoinder } = require('../src/utils/Rejoinder')
 var { createWindow, isDayInWindow } = require('../src/utils/dateTimeAlgorithms')
-/* Import helfer functions for interact with DB service */
-var {loadClarifications} = require('../src/utils/DBhelperFunctions')
 /* Import class for collapse card */
 var {CollapseCardBoard} = require('../views/commons/collapse')
 
 const Swal = require('sweetalert2')
 
 /* Constants and Global variables */
+
+const descriptions = ['Cajero sin sesionar', 'Problema Multivendor', 'Custodia no llego FS', 'Recoordina cita', 'Adecuaciones fisicas fuera de servicio banco',
+		'Adecuaciones fisicas fuera de servicio empresa', 'Comunicaciones medio', 'Comunicaciones nodo', 'Comunicaciones RED local', 'Comunicaciones Router', 'Equipo de comunicaciones',
+		'Cita no exitosa cliente/ IDC', 'Cita en tramite Protocolo / IDC', 'Recoordina cita', 'Vandalizmo Dispensador / TFS', 'Vandalizmo Lectora / TFS', 'Vandalizmo teclado /TFS',
+		'Vandalizmo fascia/ PLA', 'Vandalizmo monitor/ TFS', 'Mantenimiento cancelado', 'Energia Electrica (Local)', 'Energia Electrica (Zonal)', 'Prob. EE local suc','Prob. EE local empresa',
+		'Prob. EE CFE', 'Error Operativo Suc/Cia Tras', 'Error por Calidad de Billete', 'Riesgo Operativo'
+];
+const codes = ['HOST1', 'HOST2', 'FM0070', 'ETVRECO', 'ADFIS', 'ADFIS1', 'COMED', 'CONODO', 'COMREDL', 'COROU', 'EQCOM', 'CNECIDC', 'CTPRIDC', 'ETVRECO', 'OC0017', 'OC0018', 'OC0001',
+	'VAFASPL', 'VAFASFS', 'VAMONFS', 'FM0071', 'LOCAL', 'ZONA', 'EELOCS', 'ENEMP', 'EECFE', 'FM0074', 'FM0075', 'ROAFG'
+];
+
 var ticket; // Save the merged info about clarification and atm.
 var ibm_calculator; // Save the IBM calculator object
 var client_calculator; // Save the client calculator object
@@ -47,9 +57,10 @@ function extend(obj, src) {
 
 /* Choose type of clarification */
 
-function chooseClarification(){
+function chooseClarification( typeClarification ){
 
-  let value_selected = document.getElementById('selectClarification').value;
+  let value_selected = typeClarification || document.getElementById('selectClarification').value;
+  value_selected  =value_selected.toLowerCase()
 
   switch (value_selected) {
     case "time":
@@ -189,6 +200,11 @@ function cls(){
 		displayZone.removeChild(displayZone.firstChild);
 	}
 
+	var exportMenu = document.getElementById("exportMenu");
+	if (exportMenu){
+		exportMenu.style.display = "none"; 
+	}
+
 	var searchInput = document.getElementById('ticketInput');
 	searchInput.value = '';
 
@@ -207,16 +223,6 @@ function cls(){
 
 /* Create a select with catalogue options */
 function create_catalogue_select(display_zone){
-
-	const descriptions = ['Cajero sin sesionar', 'Problema Multivendor', 'Custodia no llego FS', 'Recoordina cita', 'Adecuaciones fisicas fuera de servicio banco',
-		'Adecuaciones fisicas fuera de servicio empresa', 'Comunicaciones medio', 'Comunicaciones nodo', 'Comunicaciones RED local', 'Comunicaciones Router', 'Equipo de comunicaciones',
-		'Cita no exitosa cliente/ IDC', 'Cita en tramite Protocolo / IDC', 'Recoordina cita', 'Vandalizmo Dispensador / TFS', 'Vandalizmo Lectora / TFS', 'Vandalizmo teclado /TFS',
-		'Vandalizmo fascia/ PLA', 'Vandalizmo monitor/ TFS', 'Mantenimiento cancelado', 'Energia Electrica (Local)', 'Energia Electrica (Zonal)', 'Prob. EE local suc','Prob. EE local empresa',
-		'Prob. EE CFE', 'Error Operativo Suc/Cia Tras', 'Error por Calidad de Billete', 'Riesgo Operativo'
-	];
-	const codes = ['HOST1', 'HOST2', 'FM0070', 'ETVRECO', 'ADFIS', 'ADFIS1', 'COMED', 'CONODO', 'COMREDL', 'COROU', 'EQCOM', 'CNECIDC', 'CTPRIDC', 'ETVRECO', 'OC0017', 'OC0018', 'OC0001',
-		'VAFASPL', 'VAFASFS', 'VAMONFS', 'FM0071', 'LOCAL', 'ZONA', 'EELOCS', 'ENEMP', 'EECFE', 'FM0074', 'FM0075', 'ROAFG'
-	];
 
 	let select = document.createElement('select');
 	select.className = 'custom-select';
@@ -241,7 +247,7 @@ function get_calculation_comment(){
 	let comment = 'IBM\n';
 	comment += ibm_calculator.getCalculationComment() + '\n';
 	comment += 'CLIENTE\n'
-	comment += ibm_calculator.getCalculationComment() + '\n';
+	comment += client_calculator.getCalculationComment() + '\n';
 	comment += "AJUSTE DE TIEMPO: " + document.getElementById('ajusteTiempo').value + '\n';
 	comment += "NUEVAS HORAS NETAS: " + document.getElementById('nuevasHorasNetas').value + '\n';
 	comment += "NUEVA FECHA FIN: " + document.getElementById('resultDatetime').value + '\n';
@@ -276,6 +282,15 @@ function update_clarification(){
 	
 	let rejoinder = new Rejoinder(ticket);
 
+	if(!rejoinder){
+		Swal.fire({
+			title: '¡No se pudo crear la replica!',
+			text: err,
+			type: 'danger',
+			confirmButtonText: 'Ok!'
+		});
+	}
+
 	rejoinder.upload().then((resolve, reject) => {
 		if(resolve){
 			Swal.fire({
@@ -289,11 +304,12 @@ function update_clarification(){
 			Swal.fire({
                 title: '¡No se pudo crear la replica!',
                 text: err,
-                type: 'danger',
+                type: 'error',
                 confirmButtonText: 'Ok!'
             });
 		}
 		cls();
+		loadClarifications();
 	});
 
 }

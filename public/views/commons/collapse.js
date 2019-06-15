@@ -170,6 +170,15 @@ class CollapseTable{
           console.log("asigne aqui", obj)
           action.setAttribute('onclick', "searchTicket("+ obj._id +")");
         }
+        else if(this.options['type'] === 'rejoinder'){
+          console.log("asigne aqui", obj)
+          action.setAttribute('onclick', "searchRejoinder("+ obj._id +")");
+          let action2 = document.createElement('button');
+          action2.appendChild(document.createTextNode(this.options['rejoinderButtonText']));
+          action2.className = 'btn btn-outline-primary btn-sm m-0 waves-effect m-2';
+          action2.setAttribute('onclick', "prepareExport("+ obj._id +")");
+          accion.appendChild(action2);
+        }
 
         accion.appendChild(action);
 
