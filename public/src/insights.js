@@ -8,256 +8,318 @@ var { getAllRecords  } = require('../src/utils/DBhelperFunctions')
 var {PythonShell} = require('python-shell');
 /* Import path for stablish the python scripts path */
 var path = require('path');
-const Swal = require('sweetalert2')
+const Swal = require('sweetalert2');
+const flatpickr = require("flatpickr");
+
+
+var low_date_range = null;
+var high_date_range = null;
+var barChart = null;
+var myDoughnutChart = null;
+var barChartSem = null;
+var barChartSem2 = null;
+var semState = null;
+
 
 /* Display all the charts */
 
 function loadCharts(){
-    
-    getBBVAServiceReport();
-
-    getFailuresPerModels();
-
-    getSemaphoreClarifications();
-
-    getSemaphoreWithoutClarifications();
-
-    getSemaphoresPerState();
-}
-
-function getBBVAServiceReport(){
 
     getAllRecords(process.env.CLARIFICATION_DB).then( (documents) => {
-        countByDate(documents).then((count) => {
-            var popCanvas = document.getElementById("canvas1");
-            var popCanvas = document.getElementById("canvas1").getContext("2d");
+        
+        let clarification_document_backup = filter_date_range(documents);
+        
+        getBBVAServiceReport(clarification_document_backup);
+        
+        getFailuresPerModels(clarification_document_backup);
+        
+        getSemaphoreWithoutClarifications(clarification_document_backup);
+        
+        getSemaphoresPerState(clarification_document_backup);
+    });
+    
+    getAllRecords(process.env.REJOINDER_DB).then( (documents) => {
 
-            var barChart = new Chart(popCanvas, {
-                type: 'bar',
-                data: {
-                  labels: count[0],
-                  datasets: [{
-                    label: 'Promedio',
-                    data: getAverageList(count[1]),
-                    fill: false,
-                    borderColor: 'red',
-                    type: 'line',
-                  },{
-                    label: 'Registros en BDs',
-                    data: count[1],
-                    backgroundColor: getRandomColor(count[1].length)
-                  }]
+        let replication_document_backup = filter_date_range(documents);
+        
+        getSemaphoreClarifications(replication_document_backup);
+    });
+}
+
+function create_date_range(){
+
+    let range_selector = document.getElementById('rangeSelector');
+
+    flatpickr(range_selector, {
+        enableTime: true,
+        dateFormat: "Y-m-d H:i",
+        maxDate: "today",
+        mode: "range",
+        time_24hr: true,
+        onClose: function(selectedDates) {
+            low_date_range = selectedDates[0];
+            high_date_range = selectedDates[1];
+            loadCharts();
+        }
+    });
+}
+
+function filter_date_range(documents){
+
+    if(!low_date_range || !high_date_range) return documents;
+
+    documents = documents.filter(function(document){
+        let start = new Date ( document.doc['fecha_inicio']);
+        return start >= low_date_range && start <= high_date_range;
+    });
+    return documents;
+}
+
+function getBBVAServiceReport(documents){
+
+    countByDate(documents).then((count) => {
+        var popCanvas = document.getElementById("canvas1");
+        var popCanvas = document.getElementById("canvas1").getContext("2d");
+
+        if(barChart){
+            barChart.destroy();
+        }
+
+        barChart = new Chart(popCanvas, {
+            type: 'bar',
+            data: {
+                labels: count[0],
+                datasets: [{
+                label: 'Promedio',
+                data: getAverageList(count[1]),
+                fill: false,
+                borderColor: 'red',
+                type: 'line',
+                },{
+                label: 'Registros en BDs',
+                data: count[1],
+                backgroundColor: getRandomColor(count[1].length)
+                }]
+            },
+            options : {
+                scales: {
+                    yAxes: [{
+                        display: true,
+                        ticks: {
+                            suggestedMin: 0,    // minimum will be 0, unless there is a lower value.
+                            // OR //
+                            beginAtZero: true   // minimum value will be 0.
+                        }
+                    }]
                 },
-                options : {
-                    scales: {
-                        yAxes: [{
-                            display: true,
-                            ticks: {
-                                suggestedMin: 0,    // minimum will be 0, unless there is a lower value.
-                                // OR //
-                                beginAtZero: true   // minimum value will be 0.
-                            }
-                        }]
-                    },
-                },
-                
-              });
+            },
+            
         });
     });
 }
 
-function getFailuresPerModels(){
+function getFailuresPerModels(documents){
 
-    getAllRecords(process.env.CLARIFICATION_DB).then( (documents) => {
-        getAllRecords(process.env.BDI_DB_ROW).then( (bdi_docs) => {
-            console.log(bdi_docs)
-            countSemaphoresByModels(documents, bdi_docs).then( (result) => {
-                var popCanvas = document.getElementById("canvas2");
-                var popCanvas = document.getElementById("canvas2").getContext("2d");
-                var myDoughnutChart = new Chart(popCanvas, {
-                    type: 'doughnut',
-                    data: {
-                        labels: result['labels'],
-                        datasets: [{
-                          label: 'Registros en BDs',
-                          data: result['data'],
-                          backgroundColor: getRandomColor(result['data'].length)
-                        }]
-                      }
-                });
+    getAllRecords(process.env.BDI_DB_ROW).then( (bdi_docs) => {
+        console.log(bdi_docs)
+        countSemaphoresByModels(documents, bdi_docs).then( (result) => {
+            var popCanvas = document.getElementById("canvas2");
+            var popCanvas = document.getElementById("canvas2").getContext("2d");
+
+            if(myDoughnutChart){
+                myDoughnutChart.destroy();
+            }
+
+            myDoughnutChart = new Chart(popCanvas, {
+                type: 'doughnut',
+                data: {
+                    labels: result['labels'],
+                    datasets: [{
+                        label: 'Registros en BDs',
+                        data: result['data'],
+                        backgroundColor: getRandomColor(result['data'].length)
+                    }]
+                    }
             });
         });
-    }); 
-}
-
-function getSemaphoreClarifications(){
-
-    getAllRecords(process.env.REJOINDER_DB).then( (documents) => {
-        countSemaphoresByDate(documents).then((result) => {
-            var popCanvas = document.getElementById("canvas3");
-            var popCanvas = document.getElementById("canvas3").getContext("2d");
-
-            var barChart = new Chart(popCanvas, {
-                type: 'bar',
-                data: {
-                  labels: result['labels'],
-                  datasets: [
-                    {
-                      label: 'No cuenta',
-                      data: result['not_count'],
-                      backgroundColor: 'lightgrey'
-                    },
-                    {
-                      label: 'Rojo',
-                      data: result['red'],
-                      backgroundColor: 'rgba(255, 10, 10, 0.7)'
-                    },
-                    {
-                      label: 'Amarillo',
-                      data: result['yellow'],
-                      backgroundColor: 'rgba(255, 186, 36, 0.7)'
-                    },
-                    {
-                        label: 'Verde',
-                        data: result['green'],
-                        backgroundColor: 'lightgreen'
-                    },
-                    {
-                        label: 'Abierto',
-                        data: result['open'],
-                        backgroundColor: 'pink'
-                    }
-                  ]
-                },
-                options : {
-                    scales: {
-                        xAxes: [{ stacked: true }],
-                        yAxes: [{
-                            stacked: true,
-                            display: true,
-                            ticks: {
-                                suggestedMin: 0,    // minimum will be 0, unless there is a lower value.
-                                // OR //
-                                beginAtZero: true   // minimum value will be 0.
-                            }
-                        }]
-                    },
-                },
-                
-              });
-        });
     });
 }
 
-function getSemaphoreWithoutClarifications(){
-    
-    getAllRecords(process.env.CLARIFICATION_DB).then( (documents) => {
-        countSemaphoresByDate(documents).then((result) => {
-            var popCanvas = document.getElementById("canvas4");
-            var popCanvas = document.getElementById("canvas4").getContext("2d");
+function getSemaphoreClarifications(documents){
 
-            var barChart = new Chart(popCanvas, {
-                type: 'bar',
-                data: {
-                  labels: result['labels'],
-                  datasets: [
-                    {
-                      label: 'No cuenta',
-                      data: result['not_count'],
-                      backgroundColor: 'lightgrey'
-                    },
-                    {
-                      label: 'Rojo',
-                      data: result['red'],
-                      backgroundColor: 'rgba(255, 10, 10, 0.7)'
-                    },
-                    {
-                      label: 'Amarillo',
-                      data: result['yellow'],
-                      backgroundColor: 'rgba(255, 186, 36, 0.7)'
-                    },
-                    {
-                        label: 'Verde',
-                        data: result['green'],
-                        backgroundColor: 'lightgreen'
-                      }
-                  ]
+    countSemaphoresByDate(documents).then((result) => {
+        var popCanvas = document.getElementById("canvas3");
+        var popCanvas = document.getElementById("canvas3").getContext("2d");
+
+        if(barChartSem){
+            barChartSem.destroy()
+        }
+        
+        barChartSem = new Chart(popCanvas, {
+            type: 'bar',
+            data: {
+                labels: result['labels'],
+                datasets: [
+                {
+                    label: 'No cuenta',
+                    data: result['not_count'],
+                    backgroundColor: 'lightgrey'
                 },
-                options : {
-                    scales: {
-                        xAxes: [{ stacked: true }],
-                        yAxes: [{
-                            stacked: true,
-                            display: true,
-                            ticks: {
-                                suggestedMin: 0,    // minimum will be 0, unless there is a lower value.
-                                // OR //
-                                beginAtZero: true   // minimum value will be 0.
-                            }
-                        }]
-                    },
+                {
+                    label: 'Rojo',
+                    data: result['red'],
+                    backgroundColor: 'rgba(255, 10, 10, 0.7)'
                 },
-                
-              });
-        });
+                {
+                    label: 'Amarillo',
+                    data: result['yellow'],
+                    backgroundColor: 'rgba(255, 186, 36, 0.7)'
+                },
+                {
+                    label: 'Verde',
+                    data: result['green'],
+                    backgroundColor: 'lightgreen'
+                },
+                {
+                    label: 'Abierto',
+                    data: result['open'],
+                    backgroundColor: 'pink'
+                }
+                ]
+            },
+            options : {
+                scales: {
+                    xAxes: [{ stacked: true }],
+                    yAxes: [{
+                        stacked: true,
+                        display: true,
+                        ticks: {
+                            suggestedMin: 0,    // minimum will be 0, unless there is a lower value.
+                            // OR //
+                            beginAtZero: true   // minimum value will be 0.
+                        }
+                    }]
+                },
+            },
+            
+            });
     });
 }
 
-function getSemaphoresPerState(){
+function getSemaphoreWithoutClarifications(documents){
 
-    getAllRecords(process.env.CLARIFICATION_DB).then( (documents) => {
-        getAllRecords(process.env.BDI_DB_ROW).then( (bdi_docs) => {
-            countSemaphoresByState(documents, bdi_docs).then( (result) => {
-                var popCanvas = document.getElementById("canvas5");
-                var popCanvas = document.getElementById("canvas5").getContext("2d");
-                var popCanvas2 = document.getElementById("canvas6");
-                var popCanvas2 = document.getElementById("canvas6").getContext("2d");
-                var chart = new Chart(popCanvas, {
-                    type: 'horizontalBar',
-                    data: {
-                        labels: result['labels'],
-                        datasets: [{
-                          label: 'Registros en BDs',
-                          data: result['yellow'],
-                          backgroundColor: getRandomColor(result['yellow'].length)
-                        }]
-                      },
-                    options: {
-                        scales: {
-                            xAxes: [{
-                                ticks: {
-                                    min: 0 // Edit the value according to what you need
-                                }
-                            }],
-                            yAxes: [{
-                                stacked: true
-                            }]
-                        }
+    countSemaphoresByDate(documents).then((result) => {
+        var popCanvas = document.getElementById("canvas4");
+        var popCanvas = document.getElementById("canvas4").getContext("2d");
+
+        if(barChartSem2){
+            barChartSem2.destroy();
+        }
+        
+        barChartSem2 = new Chart(popCanvas, {
+            type: 'bar',
+            data: {
+                labels: result['labels'],
+                datasets: [
+                {
+                    label: 'No cuenta',
+                    data: result['not_count'],
+                    backgroundColor: 'lightgrey'
+                },
+                {
+                    label: 'Rojo',
+                    data: result['red'],
+                    backgroundColor: 'rgba(255, 10, 10, 0.7)'
+                },
+                {
+                    label: 'Amarillo',
+                    data: result['yellow'],
+                    backgroundColor: 'rgba(255, 186, 36, 0.7)'
+                },
+                {
+                    label: 'Verde',
+                    data: result['green'],
+                    backgroundColor: 'lightgreen'
                     }
-                });
-                var chart = new Chart(popCanvas2, {
-                    type: 'horizontalBar',
-                    data: {
-                        labels: result['labels'],
-                        datasets: [{
-                          label: 'Registros en BDs',
-                          data: result['red'],
-                          backgroundColor: getRandomColor(result['red'].length)
-                        }]
-                      },
-                    options: {
-                        scales: {
-                            xAxes: [{
-                                ticks: {
-                                    min: 0 // Edit the value according to what you need
-                                }
-                            }],
-                            yAxes: [{
-                                stacked: true
-                            }]
+                ]
+            },
+            options : {
+                scales: {
+                    xAxes: [{ stacked: true }],
+                    yAxes: [{
+                        stacked: true,
+                        display: true,
+                        ticks: {
+                            suggestedMin: 0,    // minimum will be 0, unless there is a lower value.
+                            // OR //
+                            beginAtZero: true   // minimum value will be 0.
                         }
+                    }]
+                },
+            },
+            
+            });
+    });
+}
+
+function getSemaphoresPerState(documents){
+
+    getAllRecords(process.env.BDI_DB_ROW).then( (bdi_docs) => {
+        countSemaphoresByState(documents, bdi_docs).then( (result) => {
+            var popCanvas = document.getElementById("canvas5");
+            var popCanvas = document.getElementById("canvas5").getContext("2d");
+            var popCanvas2 = document.getElementById("canvas6");
+            var popCanvas2 = document.getElementById("canvas6").getContext("2d");
+            
+            if(semState){
+                semState.destroy();
+            }
+            
+            semState = new Chart(popCanvas, {
+                type: 'horizontalBar',
+                data: {
+                    labels: result['labels'],
+                    datasets: [{
+                        label: 'Registros en BDs',
+                        data: result['yellow'],
+                        backgroundColor: getRandomColor(result['yellow'].length)
+                    }]
+                    },
+                options: {
+                    scales: {
+                        xAxes: [{
+                            ticks: {
+                                min: 0 // Edit the value according to what you need
+                            }
+                        }],
+                        yAxes: [{
+                            stacked: true
+                        }]
                     }
-                });
+                }
+            });
+            var chart = new Chart(popCanvas2, {
+                type: 'horizontalBar',
+                data: {
+                    labels: result['labels'],
+                    datasets: [{
+                        label: 'Registros en BDs',
+                        data: result['red'],
+                        backgroundColor: getRandomColor(result['red'].length)
+                    }]
+                    },
+                options: {
+                    scales: {
+                        xAxes: [{
+                            ticks: {
+                                min: 0 // Edit the value according to what you need
+                            }
+                        }],
+                        yAxes: [{
+                            stacked: true
+                        }]
+                    }
+                }
             });
         });
     });    
@@ -494,6 +556,7 @@ function getRandomColor(n) {
 /* Return a list with the average of the input */
 
 function getAverageList(data_list){
+    if(!data_list.length) return;
     let sum = data_list.reduce((previous, current) => current += previous);
     let avg = sum / data_list.length;
     return Array(data_list.length).fill(avg)
