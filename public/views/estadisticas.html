@@ -9,42 +9,47 @@
     <script src="./commons/navBar.js"></script>
     <script src="./commons/footer.js"></script>
     <script src="../src/insights.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <title>DB Manager</title>
 </head>
-<body onload="navBar('navContainer'); footer('footerContainer'); loadCharts()">
+<body onload="navBar('navContainer'); footer('footerContainer'); loadCharts(); create_date_range();">
 
     <div id="navContainer"></div>
 
     <div class="container card mt-2">
-            <div class="row m-3">
+        <div class="row col-centered bg-light" style="height: 25px;">
+            <div class="col-centered "><i id="rangeSelector" class="fa fa-calendar m-1"></i></div>
+        </div>
+        
+        <div class="row m-3">
 
-                <div class="col-sm-6">
-                    <div class="card text-center">
-                        <div class="card-header">
-                            <h5 class="card-title">Reportes de Servicio BBVA</h5>
-                        </div>
-                        <div class="card-body">
-                            <canvas id="canvas1"></canvas>
-                        </div>
-                        <div class="card-footer text-muted">
-                            2 days ago
-                        </div>
+            <div class="col-sm-6">
+                <div class="card text-center">
+                    <div class="card-header">
+                        <h5 class="card-title">Reportes de Servicio BBVA</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="canvas1"></canvas>
+                    </div>
+                    <div class="card-footer text-muted">
+                        2 days ago
                     </div>
                 </div>
+            </div>
 
-                <div class="col-sm-6">
-                    <div class="card text-center">
-                        <div class="card-header">
-                            <h5 class="card-title">Fallas por modelo</h5>
-                        </div>
-                        <div class="card-body">
-                            <canvas id="canvas2"></canvas>
-                        </div>
-                        <div class="card-footer text-muted">
-                            2 days ago
-                        </div>
+            <div class="col-sm-6">
+                <div class="card text-center">
+                    <div class="card-header">
+                        <h5 class="card-title">Fallas por modelo</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="canvas2"></canvas>
+                    </div>
+                    <div class="card-footer text-muted">
+                        2 days ago
                     </div>
                 </div>
+            </div>
                   
             </div>
 
