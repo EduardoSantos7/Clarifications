@@ -193,3 +193,8 @@ a.socialIcon:hover, .socialHoverClass {
 	margin: 0 auto;
 }
 
+.checkButton {
+    color: lightgreen;
+    font-size: 1.5em;
+}
+

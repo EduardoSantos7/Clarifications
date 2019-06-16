@@ -93,18 +93,34 @@ function loadRejoinders(){
 
 function searchTicket(clarification_id){
 
-	let ticket_id = document.getElementById('ticketInput').value || String(clarification_id) + '.0';
+    let ticket_id = '';
+
+    if(clarification_id){
+        ticket_id = String(clarification_id) + '.0';
+    }
+    else{
+        ticket_id = document.getElementById('ticketInput').value;
+    }
+    if(!ticket_id){
+        Swal.fire({
+            title: '¡Seleccione un ID valido!',
+            text: 'Debe seleccionar un ticket ID valido',
+            type: 'warning',
+            confirmButtonText: 'Ok!'
+        });
+        return;
+    }
+    
     cls()
 
 	if(ticket_id){
-		getTicket(ticket_id, (clarification) => 
+        getTicket(ticket_id, (clarification) =>{
+            acceptClarification(clarification);
 			getATM(clarification.atm , clarification, (clarification, atm) => {
-				displayTicketInfo(clarification, atm);
-		}));
+                displayTicketInfo(clarification, atm);
+            });
+        });
     }
-	else{
-		alert("Inserta un ID valido");
-	}
 }
 
 /* Search in DB the rejoinder with input value as ID */
@@ -184,6 +200,7 @@ function getTicket(ticket_id, callback){
 
     clarificationDB.get(ticket_id, function(err, result){
         if(err) alert(err);
+        console.log(result)
         callback(result);
     });
 }
@@ -207,6 +224,22 @@ function getATM(atm_id, clarification, callback){
     });
 }
 
+function uploadClarification(clarification){
+    
+    return new Promise((resolve, reject) => {
+        let db_clarification = cloudant.db.use(process.env.CLARIFICATION_DB);
+        db_clarification.get(clarification._id, (err, res) => {
+            if(res){
+                clarification['_rev'] = res._rev;
+            }
+            db_clarification.insert(clarification, clarification._id , (err, res) => {
+                if (err){console.log(err); reject(err)};
+                resolve(res);
+            });
+        });
+    });
+}
+
 function uploadRejoinder(rejoinder){
     
     return new Promise((resolve, reject) => {
@@ -215,7 +248,6 @@ function uploadRejoinder(rejoinder){
             if(res){
                 rejoinder['_rev'] = res._rev;
             }
-            console.log(rejoinder)
             db_rejoinder.insert(rejoinder, rejoinder.ticket , (err, res) => {
                 if (err){console.log(err); reject(err)};
                 resolve(res);
@@ -274,6 +306,7 @@ module.exports.getATM = getATM;
 
 module.exports.searchTicket = searchTicket;
 module.exports.loadClarifications = loadClarifications;
+module.exports.uploadClarification = uploadClarification;
 
 module.exports.uploadRejoinder = uploadRejoinder;
 module.exports.searchRejoinder = searchRejoinder;
