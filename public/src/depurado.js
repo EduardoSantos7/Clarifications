@@ -11,6 +11,7 @@ var {loadInconsistencies, solveInconsistensy, returnToInconsistency} = require('
 /* Variables and constants */
 var IN_PATHS = []; // Array for save input paths
 var OUT_PATH = ""; // String for save output paths
+const Swal = require('sweetalert2')
 
 /* Read and display the input files */
 
@@ -66,12 +67,23 @@ function pipeline(){
 
     /* Avoid empty paths */
     if(!IN_PATHS.length > 0){
-        alert("Ingrese documentos para su depurado!");
+        Swal.fire({
+			title: '¡Ingrese documentos!',
+			text: '¡Debes ingresar documentos para que sean depurados!',
+			type: 'warning',
+			confirmButtonText: 'Entendido!'
+		});
         return;
     }
     if(!OUT_PATH){
-        alert("Ingrese un path de destino!");
-        return;
+        Swal.fire({
+			title: '¡Ingrese Path!',
+			text: '¡Debes ingresar el path en el que se guardaran los documentos depurados!',
+			type: 'warning',
+			confirmButtonText: 'Entendido!'
+		});
+
+		return;
     }
 
     send_paths();
@@ -88,8 +100,25 @@ function send_paths(){
        
       PythonShell.run('depurado.py', options, function (err, results) {
 
-        if (err) throw(err);
+        if (err) {
+            Swal.fire({
+                title: '¡Ocurrió un problema!',
+                text: err,
+                type: 'error',
+                confirmButtonText: 'Entendido!'
+            });
+    
+            return;
+        }
         /* results is an array consisting of messages collected during execution */
         console.log('results: %j', results);
+        Swal.fire({
+			title: '¡Documentos listos!',
+			text: '¡Documentos creados en la carpeta indicada!',
+			type: 'success',
+			confirmButtonText: '¡Que bueno!'
+		});
+
+		return;
       });
 }
