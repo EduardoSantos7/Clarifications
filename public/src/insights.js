@@ -3,7 +3,7 @@
 var Chart = require('chart.js');
 
 /* Import helfer functions for interact with DB service */
-var { getAllRecords  } = require('../src/utils/DBhelperFunctions')
+var { getAllRecords, getAllRecordDbs  } = require('../src/utils/DBhelperFunctions')
 /* Import Python shell for communication*/
 var {PythonShell} = require('python-shell');
 /* Import path for stablish the python scripts path */
@@ -19,6 +19,10 @@ var myDoughnutChart = null;
 var barChartSem = null;
 var barChartSem2 = null;
 var semState = null;
+var semState2 = null;
+var myDoughnutChartReasonYellow = null;
+var myDoughnutChartReasonRed = null;
+var partByState = null;
 
 
 /* Display all the charts */
@@ -36,6 +40,10 @@ function loadCharts(){
         getSemaphoreWithoutClarifications(clarification_document_backup);
         
         getSemaphoresPerState(clarification_document_backup);
+
+        getAcceptedReasons(clarification_document_backup);
+
+        getAcceptedByPartByState(clarification_document_backup);
     });
     
     getAllRecords(process.env.REJOINDER_DB).then( (documents) => {
@@ -44,6 +52,8 @@ function loadCharts(){
         
         getSemaphoreClarifications(replication_document_backup);
     });
+
+    documentsDbs();
 }
 
 function create_date_range(){
@@ -78,7 +88,7 @@ function filter_date_range(documents){
 function getBBVAServiceReport(documents){
 
     countByDate(documents).then((count) => {
-        var popCanvas = document.getElementById("canvas1");
+
         var popCanvas = document.getElementById("canvas1").getContext("2d");
 
         if(barChart){
@@ -121,7 +131,6 @@ function getBBVAServiceReport(documents){
 function getFailuresPerModels(documents){
 
     getAllRecords(process.env.BDI_DB_ROW).then( (bdi_docs) => {
-        console.log(bdi_docs)
         countSemaphoresByModels(documents, bdi_docs).then( (result) => {
             var popCanvas = document.getElementById("canvas2");
             var popCanvas = document.getElementById("canvas2").getContext("2d");
@@ -148,7 +157,7 @@ function getFailuresPerModels(documents){
 function getSemaphoreClarifications(documents){
 
     countSemaphoresByDate(documents).then((result) => {
-        var popCanvas = document.getElementById("canvas3");
+
         var popCanvas = document.getElementById("canvas3").getContext("2d");
 
         if(barChartSem){
@@ -266,13 +275,15 @@ function getSemaphoresPerState(documents){
 
     getAllRecords(process.env.BDI_DB_ROW).then( (bdi_docs) => {
         countSemaphoresByState(documents, bdi_docs).then( (result) => {
-            var popCanvas = document.getElementById("canvas5");
             var popCanvas = document.getElementById("canvas5").getContext("2d");
-            var popCanvas2 = document.getElementById("canvas6");
             var popCanvas2 = document.getElementById("canvas6").getContext("2d");
             
             if(semState){
                 semState.destroy();
+            }
+
+            if(semState2){
+                semState2.destroy();
             }
             
             semState = new Chart(popCanvas, {
@@ -280,7 +291,7 @@ function getSemaphoresPerState(documents){
                 data: {
                     labels: result['labels'],
                     datasets: [{
-                        label: 'Registros en BDs',
+                        label: result['labels'],
                         data: result['yellow'],
                         backgroundColor: getRandomColor(result['yellow'].length)
                     }]
@@ -298,12 +309,12 @@ function getSemaphoresPerState(documents){
                     }
                 }
             });
-            var chart = new Chart(popCanvas2, {
+            semState2 = new Chart(popCanvas2, {
                 type: 'horizontalBar',
                 data: {
                     labels: result['labels'],
                     datasets: [{
-                        label: 'Registros en BDs',
+                        label: result['labels'],
                         data: result['red'],
                         backgroundColor: getRandomColor(result['red'].length)
                     }]
@@ -456,7 +467,7 @@ function countSemaphoresByDate(documents){
 function countSemaphoresByState(documents, bdi_docs){
     return new Promise(resolve => {
         
-        let dates  ={};
+        let doc  ={};
         let not_count = [];
         let red = [];
         let yellow = [];
@@ -468,63 +479,249 @@ function countSemaphoresByState(documents, bdi_docs){
                 if(atm.doc._id === documents[i].doc.atm)  return (atm) }
             ).doc.estado
                 
-            if(dates[state]){
+            if(doc[state]){
 
                 let semaphore = documents[i].doc['semaforo'].toLowerCase();
                 if(semaphore.includes('no cuenta')){
-                    dates[state][0]++;
+                    doc[state][0]++;
                 }
                 else if(semaphore.includes('rojo')){
-                    dates[state][1]++;
+                    doc[state][1]++;
                 }
                 else if(semaphore.includes('amarillo')){
-                    dates[state][2]++;
+                    doc[state][2]++;
                 }
                 else if(semaphore.includes('verde')){
-                    dates[state][3]++;
+                    doc[state][3]++;
                 }
                 else if(semaphore.includes('abierto')){
-                    dates[state][4]++;
+                    doc[state][4]++;
                 }
             }
             else{
-                dates[state] = [0,0,0,0,0];
+                doc[state] = [0,0,0,0,0];
 
                 let semaphore = documents[i].doc['semaforo'].toLowerCase();
                 if(semaphore.includes('no cuenta')){
-                    dates[state][0]++;
+                    doc[state][0]++;
                 }
                 else if(semaphore.includes('rojo')){
-                    dates[state][1]++;
+                    doc[state][1]++;
                 }
                 else if(semaphore.includes('amarillo')){
-                    dates[state][2]++;
+                    doc[state][2]++;
                 }
                 else if(semaphore.includes('verde')){
-                    dates[state][3]++;
+                    doc[state][3]++;
                 }
                 else if(semaphore.includes('abierto')){
-                    dates[state][4]++;
+                    doc[state][4]++;
                 }
             }
         }
-        dates = orderObject(dates);
-        let keys = Object.keys(dates);
+        doc = orderObject(doc);
+        let keys = Object.keys(doc);
         for(let i = 0; i < keys.length; i++){
-            not_count.push(dates[keys[i]][0]);
-            red.push(dates[keys[i]][1]);
-            yellow.push(dates[keys[i]][2]);
-            green.push(dates[keys[i]][3]);
-            open.push(dates[keys[i]][4]);
+            not_count.push(doc[keys[i]][0]);
+            red.push(doc[keys[i]][1]);
+            yellow.push(doc[keys[i]][2]);
+            green.push(doc[keys[i]][3]);
+            open.push(doc[keys[i]][4]);
         }
         let result = {
-            'labels': Object.keys(dates),
+            'labels': Object.keys(doc),
             'not_count': not_count,
             'red': red,
             'yellow': yellow,
             'green': green,
             'open': open
         }
+        resolve(result)
+    });
+}
+
+function getAcceptedReasons(documents){
+
+    countSemaphoresByAcceptedReason(documents).then( (result) => {
+        var popCanvas = document.getElementById("canvas7");
+        var popCanvas = document.getElementById("canvas7").getContext("2d");
+        var popCanvas2 = document.getElementById("canvas8");
+        var popCanvas2 = document.getElementById("canvas8").getContext("2d");
+
+        if(myDoughnutChartReasonYellow){
+            myDoughnutChartReasonYellow.destroy();
+        }
+        if(myDoughnutChartReasonRed){
+            myDoughnutChartReasonRed.destroy();
+        }
+
+        myDoughnutChartReasonYellow = new Chart(popCanvas, {
+            type: 'doughnut',
+            data: {
+                labels: result['labels'],
+                datasets: [{
+                    label: 'Registros en BDs',
+                    data: result['yellow'],
+                    backgroundColor: getRandomColor(result['yellow'].length)
+                }]
+            }
+        });
+        myDoughnutChartReasonRed = new Chart(popCanvas2, {
+            type: 'doughnut',
+            data: {
+                labels: result['labels'],
+                datasets: [{
+                    label: 'Registros en BDs',
+                    data: result['red'],
+                    backgroundColor: getRandomColor(result['red'].length)
+                }]
+            }
+        });
+    });
+}
+function getAcceptedByPartByState(documents){
+
+    getAllRecords(process.env.BDI_DB_ROW).then( (bdi_docs) => {
+        countAcceptedByPartByState(documents, bdi_docs).then( (result) => {
+            var popCanvas = document.getElementById("canvas9");
+            var popCanvas = document.getElementById("canvas9").getContext("2d");
+            
+            if(partByState){
+                partByState.destroy();
+            }
+            
+            partByState = new Chart(popCanvas, {
+                type: 'horizontalBar',
+                data: {
+                    labels: result['labels'],
+                    datasets: [{
+                        label: result['labels'],
+                        data: result['data'],
+                        backgroundColor: getRandomColor(result['data'].length)
+                    }]
+                    },
+                options: {
+                    scales: {
+                        xAxes: [{
+                            ticks: {
+                                min: 0 // Edit the value according to what you need
+                            }
+                        }],
+                        yAxes: [{
+                            stacked: true
+                        }]
+                    }
+                }
+            });
+        });
+    });  
+}
+
+function documentsDbs(){
+    
+    var popCanvas = document.getElementById("canvas10").getContext("2d");
+
+    getAllRecordDbs().then((lengths) => {
+        
+        var barChart = new Chart(popCanvas, {
+            type: 'bar',
+            data: {
+              labels: ["Aclaraciones", "Inconsistencias", "Replicas"],
+              datasets: [{
+                label: 'Registros en BDs',
+                data: lengths,
+                backgroundColor: [
+                    'rgba(255, 186, 36, 0.7)',
+                    'rgba(10, 100, 235, 0.7)',
+                    'rgba(255, 10, 10, 0.7)'
+                ]
+              }]
+            }
+          });
+    });
+    
+}
+
+function countSemaphoresByAcceptedReason(documents){
+
+    return new Promise(resolve => {
+        
+        let doc  ={};
+        let red = [];
+        let yellow = [];
+        
+        for(let i = 0; i < documents.length; i++){
+            accepted_by = documents[i].doc['accepted_by'];
+            if(doc[accepted_by]){
+
+                let semaphore = documents[i].doc['semaforo'].toLowerCase();
+                
+                if(semaphore.includes('rojo')){
+                    doc[accepted_by][0]++;
+                }
+                else if(semaphore.includes('amarillo')){
+                    doc[accepted_by][1]++;
+                }
+            }
+            else{
+                doc[accepted_by] = [0,0];
+
+                let semaphore = documents[i].doc['semaforo'].toLowerCase();
+                
+                if(semaphore.includes('rojo')){
+                    doc[accepted_by][0]++;
+                }
+                else if(semaphore.includes('amarillo')){
+                    doc[accepted_by][1]++;
+                }
+            }
+        }
+        doc = orderObject(doc);
+        let keys = Object.keys(doc);
+        for(let i = 0; i < keys.length; i++){
+            red.push(doc[keys[i]][0]);
+            yellow.push(doc[keys[i]][1]);
+        }
+        let result = {
+            'labels': Object.keys(doc),
+            'red': red,
+            'yellow': yellow
+        }
+        console.log(result)
+        resolve(result)
+    });
+}
+
+
+function countAcceptedByPartByState(documents, bdi_docs){
+    return new Promise(resolve => {
+        
+        // Filter doc including yellow and red semaphores and accepted by part
+        documents = documents.filter((document) => {
+            return ['amarillo', 'rojo'].includes(document.doc['semaforo'].toLowerCase()) && 
+                document.doc['accepted_by'].toLowerCase().includes('parte');
+        });
+
+        let doc = {};
+        
+        for(let i = 0; i < documents.length; i++){
+            let state = bdi_docs.find((atm) => {
+                if(atm.doc._id === documents[i].doc.atm)  return (atm) }
+            ).doc.estado
+                
+            if(doc[state]){
+                doc[state]++;
+            }
+            else{
+                doc[state] = 1;
+            }
+        }
+        doc = orderObject(doc);
+        let result = {
+            'labels': Object.keys(doc),
+            'data': Object.values(doc)
+        }
+        console.log(result)
         resolve(result)
     });
 }
