@@ -50,7 +50,7 @@ function loadClarifications(){
         }
         let options = {
             'headers':["#", 'ATM', 'INICIO', 'FIN', 'HORAS NETAS', 'SEMAFORO', 'REMEDY' ,'ACCIÓN'],
-            'fields':['atm', 'fecha_inicio', 'fecha_fin', 'horas_netas', 'remedy' ,'semaforo'],
+            'fields':['atm', 'fecha_inicio', 'fecha_fin', 'horas_netas', 'semaforo' ,'remedy'],
             'actionButtonText':'Aclarar',
             'type':'clarification',
             'mainMenssage':"Tienes pendientes " + String(data.rows.length) + " aclaraciones",
