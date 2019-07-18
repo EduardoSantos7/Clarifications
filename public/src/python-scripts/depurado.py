@@ -4,6 +4,7 @@ import time
 import pandas as pd
 import numpy as np
 import datetime
+import json
 from math import ceil
 from utils.File import File
 from utils.Ticket import Ticket
@@ -150,6 +151,15 @@ def get_inconsistencies_file(file):
     inconsistencies.data = file.data[file.data['duplicated']]
     return inconsistencies
 
+def get_clarification_file(file):
+    """ Get clarifications from the [file] and return a File with the results """
+
+    # Edit duplicated taking only ticket key and tag all repetitions
+    file.data['duplicated'] = file.data.duplicated(subset='TICKET_KEY', keep=False)
+    clarifications = File()
+    clarifications.data = file.data[file.data['duplicated'] == False]
+    return clarifications
+
 def create_inconsistencies(file):
     """ Create the Incosistency object and assign their releated tickets """
 
@@ -164,9 +174,18 @@ def create_inconsistencies(file):
             inconsistency.add(ticket)
             inconsistencies_list.append(inconsistency)
     
-    for t in inconsistencies_list:
-        print(len(t.tickets))
     return inconsistencies_list
+
+def create_clarifications(file):
+    """ Create the Clarification object """
+
+    clarifications_list = []
+    for ticket in file.data.to_dict('records'):
+        print("creando...")
+        clarification = Ticket(ticket)
+        clarifications_list.append(clarification)
+    print(clarifications_list)
+    return clarifications_list
 
 def upload_inconsistencies(inconsistencies_list):
     user = os.getenv("USER")
@@ -186,6 +205,28 @@ def upload_inconsistencies(inconsistencies_list):
     # Disconnect from the server
     client.disconnect()
 
+def upload_clarifications(clarifications_list):
+    user = os.getenv("USER")
+    password = os.getenv("PASSWORD")
+    url = os.getenv("URL")
+    db_name = os.getenv("CLARIFICATION_DB")
+    client = Cloudant(user, password, url=url, connect=True, auto_renew=True)
+
+    # Open clarifications DB
+    clarifications_db = client[db_name]
+    print(clarifications_db)
+    print(clarifications_list)
+    try:
+        for i, clarification in enumerate(clarifications_list):
+            clarifications_db.create_document(json.loads(json.dumps(vars(clarification), indent=4, sort_keys=True, default=str) ) )
+            print('subido')
+            if i % 10 == 0:
+                time.sleep(3)
+    except Exception as e:
+        print(e)
+
+    # Disconnect from the server
+    client.disconnect()
 
 if __name__ == "__main__":
 
@@ -201,10 +242,15 @@ if __name__ == "__main__":
     inc_file = get_inconsistencies_file(fil)
     inc_file.save(path=output_path+"/inconsistencias.xlsx", **save_options)
 
+    clarification_file = get_clarification_file(fil)
+
     inconsistencies_list = create_inconsistencies(inc_file)
-    for inconsistency in inconsistencies_list:
-        print(inconsistency.inconsistency_to_json())
+    clarifications_list = create_clarifications(clarification_file)
     
+    print('subiendo replicas')
     upload_inconsistencies(inconsistencies_list)
+    print('subiendo aclaraciones')
+    upload_clarifications(clarifications_list)
+    print('acabe')
 
     pass
