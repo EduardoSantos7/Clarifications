@@ -96,7 +96,7 @@ function searchTicket(clarification_id){
     let ticket_id = '';
 
     if(clarification_id){
-        ticket_id = String(clarification_id) + '.0';
+        ticket_id = String(clarification_id);
     }
     else{
         ticket_id = document.getElementById('ticketInput').value;
@@ -127,12 +127,12 @@ function searchTicket(clarification_id){
 
 function searchRejoinder(clarification_id){
 
-    let ticket_id = document.getElementById('ticketInput').value || String(clarification_id) + '.0';
+    let ticket_id = document.getElementById('ticketInput').value || String(clarification_id);
     var db = cloudant.db.use(process.env.REJOINDER_DB);
     cls()
 
 	if(ticket_id){
-        
+
         getTicket(ticket_id, (clarification) => 
 			getATM(clarification.atm , clarification, (clarification, atm) => {
 				displayTicketInfo(clarification, atm);
