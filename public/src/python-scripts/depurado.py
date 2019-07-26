@@ -249,6 +249,8 @@ if __name__ == "__main__":
     
     print('subiendo replicas')
     upload_inconsistencies(inconsistencies_list)
+    # Clarification with semaphore in green are uploaded too
+    # due to a possible error in total hours.
     print('subiendo aclaraciones')
     upload_clarifications(clarifications_list)
     print('acabe')
