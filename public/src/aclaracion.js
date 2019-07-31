@@ -36,6 +36,7 @@ function displayTicketInfo(clarification, atm) {
 						'HORAS NETAS', 'ATM', 'SITE', 'ESTADO', 'SLA', 'MAQUINA', 'MODELO', 'TAS']
 	
 	// Merge clarification and atm dicts in only one.
+	console.log("mira....", clarification, atm)
 	let union = extend(Object.create(clarification), atm);
 	ticket = union;
 	let start_date = new Date(ticket.fecha_inicio).getDay();
@@ -52,7 +53,9 @@ function displayTicketInfo(clarification, atm) {
 /* Helper function used to merge 2 objects */
 
 function extend(obj, src) {
-    Object.keys(src).forEach(function(key) { obj[key] = src[key]; });
+	if(src){
+		Object.keys(src).forEach(function(key) { obj[key] = src[key]; });
+	}
     return obj;
 }
 
@@ -389,12 +392,15 @@ function acceptClarification(doc){
 	let div_op_1 = document.createElement('div');
 	let div_op_2 = document.createElement('div');
 	let div_op_3 = document.createElement('div');
+	let div_op_4 = document.createElement('div');
 	let input_op_1 = document.createElement('input');
 	let input_op_2 = document.createElement('input');
 	let input_op_3 = document.createElement('input');
+	let input_op_4 = document.createElement('input');
 	let label_op_1 = document.createElement('label');
 	let label_op_2 = document.createElement('label');
 	let label_op_3 = document.createElement('label');
+	let label_op_4 = document.createElement('label');
 	let col = document.createElement('div');
 	let title_div = document.createElement('div');
 	let title_row = document.createElement('div');
@@ -411,6 +417,7 @@ function acceptClarification(doc){
 	div_op_1.className = 'form-check form-check-inline';
 	div_op_2.className = 'form-check form-check-inline';
 	div_op_3.className = 'form-check form-check-inline';
+	div_op_4.className = 'form-check form-check-inline';
 	input_op_1.className = 'form-check-input';
 	input_op_1.type = 'checkbox';
 	input_op_1.id = 'check-input-1';
@@ -420,25 +427,33 @@ function acceptClarification(doc){
 	input_op_3.className = 'form-check-input';
 	input_op_3.type = 'checkbox';
 	input_op_3.id = 'check-input-3';
+	input_op_4.type = 'checkbox';
+	input_op_4.id = 'check-input-4';
 	label_op_1.className = 'form-check-label';
 	label_op_1.htmlFor = 'check-input-1';
 	label_op_2.className = 'form-check-label';
 	label_op_2.htmlFor = 'check-input-2';
 	label_op_3.className = 'form-check-label';
 	label_op_3.htmlFor = 'check-input-3';
+	label_op_4.className = 'form-check-label';
+	label_op_4.htmlFor = 'check-input-4';
 
 	label_op_1.appendChild(document.createTextNode('Cita'));
 	label_op_2.appendChild(document.createTextNode('Ingeniero'));
 	label_op_3.appendChild(document.createTextNode('Parte'));
+	label_op_4.appendChild(document.createTextNode('Verde'));
 	div_op_1.appendChild(input_op_1);
 	div_op_1.appendChild(label_op_1);
 	div_op_2.appendChild(input_op_2);
 	div_op_2.appendChild(label_op_2);
 	div_op_3.appendChild(input_op_3);
 	div_op_3.appendChild(label_op_3);
+	div_op_4.appendChild(input_op_4);
+	div_op_4.appendChild(label_op_4);
 	col_option.appendChild(div_op_1);
 	col_option.appendChild(div_op_2);
 	col_option.appendChild(div_op_3);
+	col_option.appendChild(div_op_4);
 	row_option.appendChild(col_option);
 	title.appendChild(document.createTextNode('¿Aceptas esta aclaración?'))
 	title_row.appendChild(title);

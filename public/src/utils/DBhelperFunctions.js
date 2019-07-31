@@ -2,6 +2,7 @@
 
 /* import configuration of enviroment */
 require('dotenv').config();
+var { ATMMissingAlert } = require('../alerts')
 /* Load the Cloudant library. */
 var Cloudant = require('@cloudant/cloudant');
 // Initialize Cloudant with settings from .env
@@ -200,7 +201,6 @@ function getTicket(ticket_id, callback){
 
     clarificationDB.get(ticket_id, function(err, result){
         if(err) alert(err);
-        console.log(result)
         callback(result);
     });
 }
@@ -219,6 +219,9 @@ function getATM(atm_id, clarification, callback){
                 atm = result.cajeros[i];
                 break;
             }
+        }
+        if(!atm){
+            ATMMissingAlert();
         }
         callback(clarification, atm);
     });
