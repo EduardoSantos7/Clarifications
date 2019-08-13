@@ -32,28 +32,41 @@ function loadCharts(){
     getAllRecords(process.env.CLARIFICATION_DB).then( (documents) => {
         
         let clarification_document_backup = filter_date_range(documents);
+
+        getAllRecords(process.env.BDI_DB_ROW).then( (bdi_docs) => {
+            
+            getFailuresPerModels(clarification_document_backup, bdi_docs);
+            
+            getSemaphoresPerState(clarification_document_backup, bdi_docs);
+            
+            getAcceptedByPartByState(clarification_document_backup, bdi_docs);
+        });
         
         getBBVAServiceReport(clarification_document_backup);
         
-        getFailuresPerModels(clarification_document_backup);
         
         getSemaphoreWithoutClarifications(clarification_document_backup);
         
-        getSemaphoresPerState(clarification_document_backup);
 
         getAcceptedReasons(clarification_document_backup);
 
-        getAcceptedByPartByState(clarification_document_backup);
     });
+
+    // Small delay for reduce the number of queries per second
+    setTimeout(() => {
+        getAllRecords(process.env.REJOINDER_DB).then( (documents) => {
     
-    getAllRecords(process.env.REJOINDER_DB).then( (documents) => {
+            let replication_document_backup = filter_date_range(documents);
+            
+            getSemaphoreClarifications(replication_document_backup);
+        });
+    
+        documentsDbs();
 
-        let replication_document_backup = filter_date_range(documents);
-        
-        getSemaphoreClarifications(replication_document_backup);
-    });
+    }, 1000);
 
-    documentsDbs();
+    rangeInFormat();
+    
 }
 
 function create_date_range(){
@@ -128,28 +141,26 @@ function getBBVAServiceReport(documents){
     });
 }
 
-function getFailuresPerModels(documents){
+function getFailuresPerModels(documents, bdi_docs){
 
-    getAllRecords(process.env.BDI_DB_ROW).then( (bdi_docs) => {
-        countSemaphoresByModels(documents, bdi_docs).then( (result) => {
-            var popCanvas = document.getElementById("canvas2");
-            var popCanvas = document.getElementById("canvas2").getContext("2d");
+    countSemaphoresByModels(documents, bdi_docs).then( (result) => {
+        var popCanvas = document.getElementById("canvas2");
+        var popCanvas = document.getElementById("canvas2").getContext("2d");
 
-            if(myDoughnutChart){
-                myDoughnutChart.destroy();
-            }
+        if(myDoughnutChart){
+            myDoughnutChart.destroy();
+        }
 
-            myDoughnutChart = new Chart(popCanvas, {
-                type: 'doughnut',
-                data: {
-                    labels: result['labels'],
-                    datasets: [{
-                        label: 'Registros en BDs',
-                        data: result['data'],
-                        backgroundColor: getRandomColor(result['data'].length)
-                    }]
-                    }
-            });
+        myDoughnutChart = new Chart(popCanvas, {
+            type: 'doughnut',
+            data: {
+                labels: result['labels'],
+                datasets: [{
+                    label: 'Registros en BDs',
+                    data: result['data'],
+                    backgroundColor: getRandomColor(result['data'].length)
+                }]
+                }
         });
     });
 }
@@ -271,67 +282,65 @@ function getSemaphoreWithoutClarifications(documents){
     });
 }
 
-function getSemaphoresPerState(documents){
+function getSemaphoresPerState(documents, bdi_docs){
 
-    getAllRecords(process.env.BDI_DB_ROW).then( (bdi_docs) => {
-        countSemaphoresByState(documents, bdi_docs).then( (result) => {
-            var popCanvas = document.getElementById("canvas5").getContext("2d");
-            var popCanvas2 = document.getElementById("canvas6").getContext("2d");
-            
-            if(semState){
-                semState.destroy();
-            }
+    countSemaphoresByState(documents, bdi_docs).then( (result) => {
+        var popCanvas = document.getElementById("canvas5").getContext("2d");
+        var popCanvas2 = document.getElementById("canvas6").getContext("2d");
+        
+        if(semState){
+            semState.destroy();
+        }
 
-            if(semState2){
-                semState2.destroy();
+        if(semState2){
+            semState2.destroy();
+        }
+        
+        semState = new Chart(popCanvas, {
+            type: 'horizontalBar',
+            data: {
+                labels: result['labels'],
+                datasets: [{
+                    label: result['labels'],
+                    data: result['yellow'],
+                    backgroundColor: getRandomColor(result['yellow'].length)
+                }]
+                },
+            options: {
+                scales: {
+                    xAxes: [{
+                        ticks: {
+                            min: 0 // Edit the value according to what you need
+                        }
+                    }],
+                    yAxes: [{
+                        stacked: true
+                    }]
+                }
             }
-            
-            semState = new Chart(popCanvas, {
-                type: 'horizontalBar',
-                data: {
-                    labels: result['labels'],
-                    datasets: [{
-                        label: result['labels'],
-                        data: result['yellow'],
-                        backgroundColor: getRandomColor(result['yellow'].length)
+        });
+        semState2 = new Chart(popCanvas2, {
+            type: 'horizontalBar',
+            data: {
+                labels: result['labels'],
+                datasets: [{
+                    label: result['labels'],
+                    data: result['red'],
+                    backgroundColor: getRandomColor(result['red'].length)
+                }]
+                },
+            options: {
+                scales: {
+                    xAxes: [{
+                        ticks: {
+                            min: 0 // Edit the value according to what you need
+                        }
+                    }],
+                    yAxes: [{
+                        stacked: true
                     }]
-                    },
-                options: {
-                    scales: {
-                        xAxes: [{
-                            ticks: {
-                                min: 0 // Edit the value according to what you need
-                            }
-                        }],
-                        yAxes: [{
-                            stacked: true
-                        }]
-                    }
                 }
-            });
-            semState2 = new Chart(popCanvas2, {
-                type: 'horizontalBar',
-                data: {
-                    labels: result['labels'],
-                    datasets: [{
-                        label: result['labels'],
-                        data: result['red'],
-                        backgroundColor: getRandomColor(result['red'].length)
-                    }]
-                    },
-                options: {
-                    scales: {
-                        xAxes: [{
-                            ticks: {
-                                min: 0 // Edit the value according to what you need
-                            }
-                        }],
-                        yAxes: [{
-                            stacked: true
-                        }]
-                    }
-                }
-            });
+            }
         });
     });    
 
@@ -343,10 +352,14 @@ function countSemaphoresByModels(documents, bdi_docs){
         let models  ={};
         
         for(let i = 0; i < documents.length; i++){
-            let model = bdi_docs.find((atm) => {
+            let data = bdi_docs.find((atm) => {
                 if(atm.doc._id === documents[i].doc.atm)  return (atm) }
-            ).doc.modelo
-                
+            );
+            
+            if(!data) continue;
+            
+            let model = data.doc.modelo
+            
             if(models[model]){
                 models[model]++;
             }
@@ -372,7 +385,8 @@ function countByDate(documents){
         let dates  ={};
         
         for(let i = 0; i < documents.length; i++){
-            console.log(documents[i])
+            // Skip elements without start date (index)
+            if(!documents[i].doc['fecha_inicio']) continue;
             start_date = documents[i].doc['fecha_inicio'].substring(0,10);
             if(dates[start_date]){
                 dates[start_date] += 1;
@@ -402,6 +416,8 @@ function countSemaphoresByDate(documents){
         let open = [];
         
         for(let i = 0; i < documents.length; i++){
+            // Skip elements without start date (index)
+            if(!documents[i].doc['fecha_inicio']) continue;
             start_date = documents[i].doc['fecha_inicio'].substring(0,10);
             if(dates[start_date]){
 
@@ -475,10 +491,14 @@ function countSemaphoresByState(documents, bdi_docs){
         let open = [];
         
         for(let i = 0; i < documents.length; i++){
-            let state = bdi_docs.find((atm) => {
+            let data = bdi_docs.find((atm) => {
                 if(atm.doc._id === documents[i].doc.atm)  return (atm) }
-            ).doc.estado
-                
+            );
+            
+            if(!data) continue;
+
+            let state = data.doc.estado;
+
             if(doc[state]){
 
                 let semaphore = documents[i].doc['semaforo'].toLowerCase();
@@ -579,42 +599,40 @@ function getAcceptedReasons(documents){
         });
     });
 }
-function getAcceptedByPartByState(documents){
+function getAcceptedByPartByState(documents, bdi_docs){
 
-    getAllRecords(process.env.BDI_DB_ROW).then( (bdi_docs) => {
-        countAcceptedByPartByState(documents, bdi_docs).then( (result) => {
-            var popCanvas = document.getElementById("canvas9");
-            var popCanvas = document.getElementById("canvas9").getContext("2d");
-            
-            if(partByState){
-                partByState.destroy();
-            }
-            
-            partByState = new Chart(popCanvas, {
-                type: 'horizontalBar',
-                data: {
-                    labels: result['labels'],
-                    datasets: [{
-                        label: result['labels'],
-                        data: result['data'],
-                        backgroundColor: getRandomColor(result['data'].length)
+    countAcceptedByPartByState(documents, bdi_docs).then( (result) => {
+        var popCanvas = document.getElementById("canvas9");
+        var popCanvas = document.getElementById("canvas9").getContext("2d");
+        
+        if(partByState){
+            partByState.destroy();
+        }
+        
+        partByState = new Chart(popCanvas, {
+            type: 'horizontalBar',
+            data: {
+                labels: result['labels'],
+                datasets: [{
+                    label: result['labels'],
+                    data: result['data'],
+                    backgroundColor: getRandomColor(result['data'].length)
+                }]
+                },
+            options: {
+                scales: {
+                    xAxes: [{
+                        ticks: {
+                            min: 0 // Edit the value according to what you need
+                        }
+                    }],
+                    yAxes: [{
+                        stacked: true
                     }]
-                    },
-                options: {
-                    scales: {
-                        xAxes: [{
-                            ticks: {
-                                min: 0 // Edit the value according to what you need
-                            }
-                        }],
-                        yAxes: [{
-                            stacked: true
-                        }]
-                    }
                 }
-            });
+            }
         });
-    });  
+    }); 
 }
 
 function documentsDbs(){
@@ -666,6 +684,8 @@ function countSemaphoresByAcceptedReason(documents){
             else{
                 doc[accepted_by] = [0,0];
 
+                // Skip elements without semaphore (index)
+                if(!documents[i].doc['semaforo']) continue;
                 let semaphore = documents[i].doc['semaforo'].toLowerCase();
                 
                 if(semaphore.includes('rojo')){
@@ -698,8 +718,10 @@ function countAcceptedByPartByState(documents, bdi_docs){
         
         // Filter doc including yellow and red semaphores and accepted by part
         documents = documents.filter((document) => {
-            return ['amarillo', 'rojo'].includes(document.doc['semaforo'].toLowerCase()) && 
-                document.doc['accepted_by'].toLowerCase().includes('parte');
+            if(document.doc['semaforo'] && document.doc['accepted_by']){
+                return ['amarillo', 'rojo'].includes(document.doc['semaforo'].toLowerCase()) && 
+                    document.doc['accepted_by'].toLowerCase().includes('parte');
+            }
         });
 
         let doc = {};
@@ -757,4 +779,16 @@ function getAverageList(data_list){
     let sum = data_list.reduce((previous, current) => current += previous);
     let avg = sum / data_list.length;
     return Array(data_list.length).fill(avg)
+}
+
+function rangeInFormat(){
+    card_footers = document.getElementsByClassName('card-footer');
+    Array.from(card_footers).forEach(element => {
+        if (!low_date_range &&  !high_date_range){
+            element.innerHTML = 'Todo el período';
+        }
+        else{
+            element.innerHTML = flatpickr.formatDate(low_date_range, "Y-m-d h:i K") + '-' +  flatpickr.formatDate(high_date_range, "Y-m-d h:i K");
+        }
+    });
 }
