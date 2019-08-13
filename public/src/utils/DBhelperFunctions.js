@@ -237,9 +237,11 @@ function uploadClarification(clarification){
     
     return new Promise((resolve, reject) => {
         let db_clarification = cloudant.db.use(process.env.CLARIFICATION_DB);
-        db_clarification.get(clarification._id, (err, res) => {
+        let targetId = clarification._id || clarification.ticket
+        db_clarification.get(targetId, (err, res) => {
             if(res){
                 clarification['_rev'] = res._rev;
+                clarification['solved'] = true;
             }
             db_clarification.insert(clarification, clarification._id , (err, res) => {
                 if (err){console.log(err); reject(err)};
@@ -253,10 +255,17 @@ function uploadRejoinder(rejoinder){
     
     return new Promise((resolve, reject) => {
         let db_rejoinder = cloudant.db.use(process.env.REJOINDER_DB);
+        let db_clarification = cloudant.db.use(process.env.CLARIFICATION_DB);
+        
+        
         db_rejoinder.get(rejoinder.ticket, (err, res) => {
             if(res){
                 rejoinder['_rev'] = res._rev;
             }
+            
+            // Upload the clarificationf field (solved)
+            uploadClarification(rejoinder)
+
             db_rejoinder.insert(rejoinder, rejoinder.ticket , (err, res) => {
                 if (err){console.log(err); reject(err)};
                 resolve(res);
