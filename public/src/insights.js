@@ -51,15 +51,22 @@ function loadCharts(){
         getAcceptedReasons(clarification_document_backup);
 
     });
+
+    // Small delay for reduce the number of queries per second
+    setTimeout(() => {
+        getAllRecords(process.env.REJOINDER_DB).then( (documents) => {
     
-    getAllRecords(process.env.REJOINDER_DB).then( (documents) => {
+            let replication_document_backup = filter_date_range(documents);
+            
+            getSemaphoreClarifications(replication_document_backup);
+        });
+    
+        documentsDbs();
 
-        let replication_document_backup = filter_date_range(documents);
-        
-        getSemaphoreClarifications(replication_document_backup);
-    });
+    }, 1000);
 
-    documentsDbs();
+    rangeInFormat();
+    
 }
 
 function create_date_range(){
@@ -772,4 +779,16 @@ function getAverageList(data_list){
     let sum = data_list.reduce((previous, current) => current += previous);
     let avg = sum / data_list.length;
     return Array(data_list.length).fill(avg)
+}
+
+function rangeInFormat(){
+    card_footers = document.getElementsByClassName('card-footer');
+    Array.from(card_footers).forEach(element => {
+        if (!low_date_range &&  !high_date_range){
+            element.innerHTML = 'Todo el período';
+        }
+        else{
+            element.innerHTML = flatpickr.formatDate(low_date_range, "Y-m-d h:i K") + '-' +  flatpickr.formatDate(high_date_range, "Y-m-d h:i K");
+        }
+    });
 }
