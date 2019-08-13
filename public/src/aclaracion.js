@@ -429,6 +429,7 @@ function acceptClarification(doc){
 	input_op_3.id = 'check-input-3';
 	input_op_4.type = 'checkbox';
 	input_op_4.id = 'check-input-4';
+	input_op_4.className = 'form-check-input';
 	label_op_1.className = 'form-check-label';
 	label_op_1.htmlFor = 'check-input-1';
 	label_op_2.className = 'form-check-label';

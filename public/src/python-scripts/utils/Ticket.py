@@ -15,6 +15,7 @@ class Ticket():
         self.remedy = ticket_dict['RemedyIncident']
         self.semaforo = ticket_dict['Semaforo']
         self.archivo = ticket_dict['file_name']
+        self.solved = False
 
     def ticket_to_json(self):
         return json.dumps(vars(self), ensure_ascii=False, default=str)
