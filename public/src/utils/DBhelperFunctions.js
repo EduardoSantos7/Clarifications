@@ -45,21 +45,26 @@ function loadClarifications(){
 
     var db = cloudant.db.use(process.env.CLARIFICATION_DB);
     
-    db.list({include_docs:true}, function (err, data) {
+    db.find({ selector: { solved:false } }, function(err, result) {
+        data = result.docs
         if(err){
             alert("Have trouble connecting to DB: ", err);
         }
+
+        let amount = (typeof data.rows !== 'undefined') ? String(data.length) : '0'
+
         let options = {
             'headers':["#", 'ATM', 'INICIO', 'FIN', 'HORAS NETAS', 'SEMAFORO', 'REMEDY' ,'ACCIÓN'],
             'fields':['atm', 'fecha_inicio', 'fecha_fin', 'horas_netas', 'semaforo' ,'remedy'],
             'actionButtonText':'Aclarar',
             'type':'clarification',
-            'mainMenssage':"Tienes pendientes " + String(data.rows.length) + " aclaraciones",
+            'mainMenssage':"Tienes pendientes " + String(amount) + " aclaraciones",
             title:'ACLARACIONES'
         }
         let board = new CollapseCardBoard('collapseCardsContainer', 'displayZone', options)
-        for(let i = 0; i < data.rows.length; i++){
-            board.createCard(data.rows[i]);
+
+        for(let i = 0; i < data.length; i++){
+            board.createCard(data[i]);
         }
     });
 }
