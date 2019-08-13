@@ -22,6 +22,7 @@ function loadInconsistencies(){
         if(err){
             alert("Have trouble connecting to DB: ", err);
         }
+        console.log("soy la data", data)
         let options = {
             'headers':["#", 'INICIO', 'FIN', 'HORAS NETAS', 'SEMAFORO', 'ARCHIVO', 'ACCIÓN'],
             'fields':['fecha_inicio', 'fecha_fin', 'horas_netas', 'semaforo', 'archivo'],

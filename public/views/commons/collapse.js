@@ -144,9 +144,11 @@ class CollapseTable{
 
   fill_body(){
     let len = this.rows.length || 1 
+    console.log(len)
     for(let i = 0; i < len; i++){
         let titleRow = document.createElement('TR');
-
+        console.log(this.rows)
+        let obj = (len  == 1) ? this.rows : JSON.parse(this.rows[i]);
         titleRow.className = 'text-center';
 
         let num = document.createElement('td');
@@ -154,7 +156,7 @@ class CollapseTable{
         titleRow.appendChild(num);
         for(let j = 0; j < this.options['fields'].length; j++){
           let element = document.createElement('td');
-          element.appendChild(document.createTextNode(this.rows[this.options['fields'][j]]));
+          element.appendChild(document.createTextNode(obj[this.options['fields'][j]]));
           titleRow.appendChild(element);
         }
 
@@ -167,16 +169,16 @@ class CollapseTable{
           action.setAttribute('onclick', "solveInconsistensy("+ this.rows[i] +")");
         }
         else if(this.options['type'] === 'clarification'){
-          console.log("asigne aqui", this.rows)
-          action.setAttribute('onclick', "searchTicket("+ this.rows._id +")");
+          console.log("asigne aqui", obj)
+          action.setAttribute('onclick', "searchTicket("+ obj._id +")");
         }
         else if(this.options['type'] === 'rejoinder'){
-          console.log("asigne aqui", this.rows)
-          action.setAttribute('onclick', "searchRejoinder("+ this.rows._id +")");
+          console.log("asigne aqui", obj)
+          action.setAttribute('onclick', "searchRejoinder("+ obj._id +")");
           let action2 = document.createElement('button');
           action2.appendChild(document.createTextNode(this.options['rejoinderButtonText']));
           action2.className = 'btn btn-outline-primary btn-sm m-0 waves-effect m-2';
-          action2.setAttribute('onclick', "prepareExport("+ this.rows._id +")");
+          action2.setAttribute('onclick', "prepareExport("+ obj._id +")");
           accion.appendChild(action2);
         }
 
