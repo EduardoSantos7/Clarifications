@@ -76,7 +76,7 @@ function loadRejoinders(){
 
     var db = cloudant.db.use(process.env.REJOINDER_DB);
     
-    db.list({include_docs:true}, function (err, data) {
+    db.find({ selector: { solved:false } }, function(err, data) {
         if(err){
             alert("Have trouble connecting to DB: ", err);
         }
@@ -85,15 +85,15 @@ function loadRejoinders(){
             'fields':['atm', 'fecha_inicio', 'fecha_fin', 'nueva_fecha_fin', 'tipo' ,'tarea_remedy'],
             'actionButtonText':'Replicar',
             'type':'rejoinder',
-            'mainMenssage':"Tienes pendientes " + String(data.rows.length) + " replicas",
+            'mainMenssage':"Tienes pendientes " + String(data.docs.length) + " replicas",
             'title':'REPLICAS',
             'rejoinderButtonText':'Guardar',
             'rejoinderButtonText2':'Cerrar'
         }
         let board = new CollapseCardBoard('collapseCardsContainer', 'displayZone', options)
-        console.log("documents: ", data.rows);
-        for(let i = 0; i < data.rows.length; i++){
-            board.createCard(data.rows[i]);
+        console.log("documents: ", data.docs);
+        for(let i = 0; i < data.docs.length; i++){
+            board.createCard(data.docs[i]);
         }
     });
 }
