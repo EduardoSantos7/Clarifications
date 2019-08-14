@@ -47,6 +47,7 @@ class Rejoinder{
         this.sitio = ticket['sitio'];
         this.tipo = ticket['tipo'];
         this.hoja = ticket['sheet'];
+        this.solved = false;
         this.tipodeautoservicio = ticket['tipodeautoservicio'];
         if(ticket['replicas']){
             ticket['replicas'].push(ticket['comentario'])

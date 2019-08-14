@@ -81,13 +81,14 @@ function loadRejoinders(){
             alert("Have trouble connecting to DB: ", err);
         }
         let options = {
-            'headers':["#", 'ATM', 'INICIO', 'FIN', 'NUEVA FECHA FIN', 'TIPO', 'REMEDY' ,'ACCIÓN'],
+            'headers':["#", 'ATM', 'INICIO', 'FIN', 'NUEVA FECHA FIN', 'TIPO', 'REMEDY' ,'ACCIONES'],
             'fields':['atm', 'fecha_inicio', 'fecha_fin', 'nueva_fecha_fin', 'tipo' ,'tarea_remedy'],
             'actionButtonText':'Replicar',
             'type':'rejoinder',
             'mainMenssage':"Tienes pendientes " + String(data.rows.length) + " replicas",
             'title':'REPLICAS',
-            'rejoinderButtonText':'Guardar'
+            'rejoinderButtonText':'Guardar',
+            'rejoinderButtonText2':'Cerrar'
         }
         let board = new CollapseCardBoard('collapseCardsContainer', 'displayZone', options)
         console.log("documents: ", data.rows);
@@ -315,6 +316,22 @@ function getAllRecords(db_name){
     });
 }
 
+function closeRejoinder(targetId){
+
+    return new Promise((resolve, reject) => {
+        let db_rejoinder = cloudant.db.use(process.env.REJOINDER_DB);
+        db_rejoinder.get(targetId, (err, res) => {
+            if(res){
+                res['solved'] = true;
+            }
+            db_rejoinder.insert(res, res._id , (err, res) => {
+                if (err){console.log(err); reject(err)};
+                resolve(res);
+            });
+        });
+    });
+}
+
 /*  Export functions */
 module.exports.loadInconsistencies = loadInconsistencies;
 module.exports.solveInconsistensy = solveInconsistensy;
@@ -330,6 +347,7 @@ module.exports.uploadClarification = uploadClarification;
 module.exports.uploadRejoinder = uploadRejoinder;
 module.exports.searchRejoinder = searchRejoinder;
 module.exports.loadRejoinders = loadRejoinders;
+module.exports.closeRejoinder = closeRejoinder;
 
 module.exports.getAllRecordDbs = getAllRecordDbs;
 

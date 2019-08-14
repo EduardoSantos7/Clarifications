@@ -1,6 +1,7 @@
 /* This script handle rejoinder proccess*/
 
-var { loadRejoinders, searchRejoinder } = require('../src/utils/DBhelperFunctions');
+var { loadRejoinders, searchRejoinder, closeRejoinder } = require('../src/utils/DBhelperFunctions');
+var { cls } = require('../src/aclaracion');
 /* Import path for stablish the python scripts path */
 var path = require('path');
 /* Import Python shell for communication*/
@@ -30,6 +31,32 @@ function prepareExport(rejoinder_id){
 			confirmButtonText: 'Entendido!'
 		});
     }
+}
+
+function closeRejoinderAlert(rejoinder_id){
+
+    Swal.fire({
+        title: '¿Quieres cerrar esta replica?',
+        text: "Ya no aparecerá en esta sección pero los cambios no son reversibles",
+        type: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Si, cierrala!',
+        cancelButtonText: 'Mantener'
+      }).then((result) => {
+        if (result.value) {
+            closeRejoinder(rejoinder_id).then(() => {
+                Swal.fire(
+                  'Cerrado!',
+                  'La replica ha sido cerrada!',
+                  'success'
+                )
+            });
+            cls();
+            loadRejoinders();
+        }
+      })
 }
 
 /* Read and display the output files */

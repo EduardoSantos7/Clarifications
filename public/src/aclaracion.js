@@ -487,3 +487,4 @@ function getSheet(){
 	}
 }
 
+module.exports.cls = cls;

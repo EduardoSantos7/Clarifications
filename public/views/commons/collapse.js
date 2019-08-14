@@ -180,6 +180,12 @@ class CollapseTable{
           action2.className = 'btn btn-outline-primary btn-sm m-0 waves-effect m-2';
           action2.setAttribute('onclick', "prepareExport("+ obj._id +")");
           accion.appendChild(action2);
+          // Action 3
+          let action3 = document.createElement('button');
+          action3.appendChild(document.createTextNode(this.options['rejoinderButtonText2']));
+          action3.className = 'btn btn-outline-primary btn-sm m-0 waves-effect m-2';
+          action3.setAttribute('onclick', "closeRejoinderAlert("+ obj._id +")");
+          accion.appendChild(action3);
         }
 
         accion.appendChild(action);
