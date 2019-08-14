@@ -90,6 +90,7 @@ function loadRejoinders(){
             'rejoinderButtonText':'Guardar'
         }
         let board = new CollapseCardBoard('collapseCardsContainer', 'displayZone', options)
+        console.log("documents: ", data.rows);
         for(let i = 0; i < data.rows.length; i++){
             board.createCard(data.rows[i]);
         }

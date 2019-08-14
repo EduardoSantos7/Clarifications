@@ -147,8 +147,8 @@ class CollapseTable{
     console.log(len)
     for(let i = 0; i < len; i++){
         let titleRow = document.createElement('TR');
-        console.log(this.rows)
-        let obj = (len  == 1) ? this.rows : JSON.parse(this.rows[i]);
+        console.log("rows:", this.rows)
+        let obj = (len  == 1) ? this.rows.doc || this.rows : JSON.parse(this.rows[i]);
         titleRow.className = 'text-center';
 
         let num = document.createElement('td');

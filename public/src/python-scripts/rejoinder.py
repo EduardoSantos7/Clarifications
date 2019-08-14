@@ -23,10 +23,12 @@ def read_rejoinders(id_list, out_path):
     df_list = []
     export = File(to_save=out_path + '\\result.xlsx')
     for id in id_list:
-        doc = rejoinder_db[id + '.0']
+        doc = rejoinder_db[id]
         df_list.append(doc)
-    export.data = pd.DataFrame(df_list)
-    export.save()
+    for d in df_list:
+        export.append_df_to_excel(pd.DataFrame([d]), d['sheet'], **{'index':False})
+        #export.data = pd.DataFrame(df_list)
+    #export.save()
         
 
 if __name__ == "__main__":
