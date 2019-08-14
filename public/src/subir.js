@@ -7,10 +7,12 @@ function showFields(){
 	switch (value_selected) {
 		case "atm":
             showATMFields();
+            insertUploadButton();
             break;
 		
 		case "ticket":
             showTicketFields();
+            insertUploadButton();
             break;
 	}
 }
@@ -24,8 +26,20 @@ function showTicketFields(){
     insertTitle(title, content);
 
     form_group_1 = createFormGroup('TICKET KEY:', 'form_1', 'text', '126...');
+    form_group_2 = createFormGroup('ATM ID:', 'form_2', 'text', '1013');
+    form_group_3 = createFormGroup('ESN:', 'form_3', 'text', 'IN00...');
+    form_group_4 = createFormGroup('HORAS NETAS', 'form_4', 'time', '126...');
+    form_group_5 = createFormGroup('FALLA:', 'form_5', 'text', 'El dispositivo...');
+    form_group_6 = createFormGroup('FECHA INICIO:', 'form_6', 'datetime-local', '');
+    form_group_7 = createFormGroup('FECHA FIN:', 'form_7', 'datetime-local', '');
 
     form.appendChild(form_group_1);
+    form.appendChild(form_group_2);
+    form.appendChild(form_group_3);
+    form.appendChild(form_group_4);
+    form.appendChild(form_group_5);
+    form.appendChild(form_group_6);
+    form.appendChild(form_group_7);
     display_zone.appendChild(form);
 
 
@@ -67,4 +81,21 @@ function createFormGroup(label_data, for_id, input_type, placeholder){
     main_div.appendChild(input);
 
     return main_div;
+}
+
+function insertUploadButton(){
+    let main_div = document.createElement('div');
+    let button = document.createElement('button');
+    let sidebar = document.getElementById('sidebar');
+    button.className = "btn btn-outline-primary"
+    button.setAttribute('onclick', "verify()");
+    main_div.className = 'pt-4';
+    button.innerHTML = "Subir";
+    main_div.appendChild(button);
+    sidebar.appendChild(main_div);
+
+}
+
+function verify(){
+    alert('hola')
 }
