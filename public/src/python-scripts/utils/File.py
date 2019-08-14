@@ -123,6 +123,8 @@ class File():
             # if it was not specified explicitly
             if startrow is None and sheet_name in writer.book.sheetnames:
                 startrow = writer.book[sheet_name].max_row
+                if startrow:
+                    to_excel_kwargs['header'] = None
 
             # truncate sheet
             if truncate_sheet and sheet_name in writer.book.sheetnames:
