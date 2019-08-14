@@ -76,22 +76,24 @@ function loadRejoinders(){
 
     var db = cloudant.db.use(process.env.REJOINDER_DB);
     
-    db.list({include_docs:true}, function (err, data) {
+    db.find({ selector: { solved:false } }, function(err, data) {
         if(err){
             alert("Have trouble connecting to DB: ", err);
         }
         let options = {
-            'headers':["#", 'ATM', 'INICIO', 'FIN', 'NUEVA FECHA FIN', 'TIPO', 'REMEDY' ,'ACCIÓN'],
+            'headers':["#", 'ATM', 'INICIO', 'FIN', 'NUEVA FECHA FIN', 'TIPO', 'REMEDY' ,'ACCIONES'],
             'fields':['atm', 'fecha_inicio', 'fecha_fin', 'nueva_fecha_fin', 'tipo' ,'tarea_remedy'],
             'actionButtonText':'Replicar',
             'type':'rejoinder',
-            'mainMenssage':"Tienes pendientes " + String(data.rows.length) + " replicas",
+            'mainMenssage':"Tienes pendientes " + String(data.docs.length) + " replicas",
             'title':'REPLICAS',
-            'rejoinderButtonText':'Guardar'
+            'rejoinderButtonText':'Guardar',
+            'rejoinderButtonText2':'Cerrar'
         }
         let board = new CollapseCardBoard('collapseCardsContainer', 'displayZone', options)
-        for(let i = 0; i < data.rows.length; i++){
-            board.createCard(data.rows[i]);
+        console.log("documents: ", data.docs);
+        for(let i = 0; i < data.docs.length; i++){
+            board.createCard(data.docs[i]);
         }
     });
 }
@@ -314,6 +316,22 @@ function getAllRecords(db_name){
     });
 }
 
+function closeRejoinder(targetId){
+
+    return new Promise((resolve, reject) => {
+        let db_rejoinder = cloudant.db.use(process.env.REJOINDER_DB);
+        db_rejoinder.get(targetId, (err, res) => {
+            if(res){
+                res['solved'] = true;
+            }
+            db_rejoinder.insert(res, res._id , (err, res) => {
+                if (err){console.log(err); reject(err)};
+                resolve(res);
+            });
+        });
+    });
+}
+
 /*  Export functions */
 module.exports.loadInconsistencies = loadInconsistencies;
 module.exports.solveInconsistensy = solveInconsistensy;
@@ -329,6 +347,7 @@ module.exports.uploadClarification = uploadClarification;
 module.exports.uploadRejoinder = uploadRejoinder;
 module.exports.searchRejoinder = searchRejoinder;
 module.exports.loadRejoinders = loadRejoinders;
+module.exports.closeRejoinder = closeRejoinder;
 
 module.exports.getAllRecordDbs = getAllRecordDbs;
 

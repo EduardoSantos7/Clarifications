@@ -343,6 +343,7 @@ function update_clarification(){
 		return;
 	}
 	ticket['nueva_fecha_fin'] = document.getElementById('resultDatetime').value;
+	ticket['sheet'] = getSheet();
 	
 	let rejoinder = new Rejoinder(ticket);
 
@@ -467,3 +468,23 @@ function acceptClarification(doc){
 	plot_zone.appendChild(container);
 }
 
+function getSheet(){
+	let value_selected = typeClarification || document.getElementById('selectSheet').value;
+  	value_selected  = value_selected.toLowerCase()
+
+	switch (value_selected) {
+		case "dispensador":
+			return 'Dispensador';
+		
+		case "fueraDeVentana":
+			return 'Fuera de Ventana';
+
+		case "120min":
+				return '120 Minutos';
+	
+		default: 
+			return 'Dispensador';
+	}
+}
+
+module.exports.cls = cls;

@@ -147,8 +147,8 @@ class CollapseTable{
     console.log(len)
     for(let i = 0; i < len; i++){
         let titleRow = document.createElement('TR');
-        console.log(this.rows)
-        let obj = (len  == 1) ? this.rows : JSON.parse(this.rows[i]);
+        console.log("rows:", this.rows)
+        let obj = (len  == 1) ? this.rows.doc || this.rows : JSON.parse(this.rows[i]);
         titleRow.className = 'text-center';
 
         let num = document.createElement('td');
@@ -180,6 +180,12 @@ class CollapseTable{
           action2.className = 'btn btn-outline-primary btn-sm m-0 waves-effect m-2';
           action2.setAttribute('onclick', "prepareExport("+ obj._id +")");
           accion.appendChild(action2);
+          // Action 3
+          let action3 = document.createElement('button');
+          action3.appendChild(document.createTextNode(this.options['rejoinderButtonText2']));
+          action3.className = 'btn btn-outline-primary btn-sm m-0 waves-effect m-2';
+          action3.setAttribute('onclick', "closeRejoinderAlert("+ obj._id +")");
+          accion.appendChild(action3);
         }
 
         accion.appendChild(action);
