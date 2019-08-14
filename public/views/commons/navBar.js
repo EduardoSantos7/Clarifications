@@ -27,7 +27,7 @@ function navBar(container_id){
                     <a class="nav-link" href="./estadisticas.html">Estadísticas</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="./estadisticas.html">Subir</a>
+                    <a class="nav-link" href="./subir.html">Subir</a>
                 </li>
             </ul>
             <form class="form-inline m-2">

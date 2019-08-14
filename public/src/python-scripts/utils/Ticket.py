@@ -12,7 +12,6 @@ class Ticket():
         self.fecha_inicio = ticket_dict['fecha_inicio']
         self.fecha_fin = ticket_dict['Fecha_fin']
         self.horas_netas = ticket_dict['Horas_Netas']
-        self.remedy = ticket_dict['RemedyIncident']
         self.semaforo = ticket_dict['Semaforo']
         self.archivo = ticket_dict['file_name']
         self.solved = False
