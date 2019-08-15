@@ -1,4 +1,6 @@
-
+/* Import helfer functions for interact with DB service */
+var { uploadClarification } = require('../src/utils/DBhelperFunctions')
+const Swal = require('sweetalert2')
 
 function showFields(){
 	let value_selected = document.getElementById('selectElement').value;
@@ -25,13 +27,13 @@ function showTicketFields(){
     
     insertTitle(title, content);
 
-    form_group_1 = createFormGroup('TICKET KEY:', 'form_1', 'text', '126...');
-    form_group_2 = createFormGroup('ATM ID:', 'form_2', 'text', '1013');
-    form_group_3 = createFormGroup('ESN:', 'form_3', 'text', 'IN00...');
-    form_group_4 = createFormGroup('HORAS NETAS', 'form_4', 'time', '126...');
-    form_group_5 = createFormGroup('FALLA:', 'form_5', 'text', 'El dispositivo...');
-    form_group_6 = createFormGroup('FECHA INICIO:', 'form_6', 'datetime-local', '');
-    form_group_7 = createFormGroup('FECHA FIN:', 'form_7', 'datetime-local', '');
+    form_group_1 = createFormGroup('TICKET KEY:', 'form_1', 'text', '126...', '_id');
+    form_group_2 = createFormGroup('ATM ID:', 'form_2', 'text', '1013', 'atm');
+    form_group_3 = createFormGroup('ESN:', 'form_3', 'text', 'IN00...', 'remedy');
+    form_group_4 = createFormGroup('HORAS NETAS', 'form_4', 'time', '126...', 'horas_netas');
+    form_group_5 = createFormGroup('FALLA:', 'form_5', 'text', 'El dispositivo...', 'falla');
+    form_group_6 = createFormGroup('FECHA INICIO:', 'form_6', 'datetime-local', '', 'fecha_inicio');
+    form_group_7 = createFormGroup('FECHA FIN:', 'form_7', 'datetime-local', '', 'fecha_fin');
 
     form.appendChild(form_group_1);
     form.appendChild(form_group_2);
@@ -65,13 +67,14 @@ function insertTitle(title, content){
     main_div.appendChild(small)
 }
 
-function createFormGroup(label_data, for_id, input_type, placeholder){
+function createFormGroup(label_data, for_id, input_type, placeholder, label_value){
     let main_div = document.createElement('div');
     let label = document.createElement('label');
     let input = document.createElement('input');
 
     main_div.className = 'form-group';
     label.htmlFor = for_id;
+    label.value = label_value;
     label.innerHTML = label_data;
     input.type = input_type;
     input.className = 'form-control';
@@ -88,7 +91,7 @@ function insertUploadButton(){
     let button = document.createElement('button');
     let sidebar = document.getElementById('sidebar');
     button.className = "btn btn-outline-primary"
-    button.setAttribute('onclick', "verify()");
+    button.setAttribute('onclick', "upload()");
     main_div.className = 'pt-4';
     button.innerHTML = "Subir";
     main_div.appendChild(button);
@@ -96,6 +99,60 @@ function insertUploadButton(){
 
 }
 
+function upload(){
+    let data = verify();
+
+    if(!data){
+        Swal.fire({
+            type: 'error',
+            title: 'Oops...',
+            text: 'No se han podido subir los registros! Asegurate de haber llenado los campos',
+          })
+    }
+
+    // Complete ticket
+    data['solved'] = false;
+
+    uploadClarification(data).then((res) => {
+        if(!res){
+            Swal.fire({
+                type: 'error',
+                title: 'Oops...',
+                text: 'No se han podido subir la información!',
+              });
+              return;
+        }
+        
+        Swal.fire({
+            title: 'Ticket subido!',
+            text: 'Se ha creado un nuevo ticket!',
+            type: 'success',
+            confirmButtonText: 'Ok!'
+        });
+
+    })
+}
+
 function verify(){
-    alert('hola')
+    let forms = document.getElementsByClassName('form-group');
+    let data = {};
+
+    for(let i = 0; i < forms.length; i++){
+        input = forms[i].getElementsByTagName('input')[0];
+        label = forms[i].getElementsByTagName('label')[0].value;
+        let value = input.value;
+        if (value.includes('T', 10)){
+            value = input.value.replace('T', ' ')
+        }
+        data[label] = value;
+    }
+
+    // Check if all the fields are filled.
+    let all_true = Object.keys(data).every(function(k){ return data[k] });
+
+    if(! all_true){
+        return false;
+    }
+
+    return data;
 }
