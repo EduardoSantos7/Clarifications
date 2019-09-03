@@ -469,7 +469,7 @@ function acceptClarification(doc){
 }
 
 function getSheet(){
-	let value_selected = typeClarification || document.getElementById('selectSheet').value;
+	let value_selected = document.getElementById('selectSheet').value;
   	value_selected  = value_selected.toLowerCase()
 
 	switch (value_selected) {
