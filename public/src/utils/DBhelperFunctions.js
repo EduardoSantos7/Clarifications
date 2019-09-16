@@ -52,7 +52,7 @@ function loadClarifications(){
             alert("Have trouble connecting to DB: ", err);
         }
 
-        let amount = (typeof data.rows !== 'undefined') ? String(data.length) : '0'
+        let amount = (typeof data.rows !== undefined) ? String(data.length) : '0'
 
         let options = {
             'headers':["#", 'ATM', 'INICIO', 'FIN', 'HORAS NETAS', 'SEMAFORO', 'REMEDY' ,'ACCIÓN'],
