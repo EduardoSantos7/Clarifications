@@ -166,17 +166,27 @@ function solveInconsistensy(inconsistency){
 
     db.find({ selector: { _id:inconsistency._id } }, function(err, result) {
         if (err)  alert(err);
+
         result.docs[0].solved = true;
         db.insert(result.docs[0])
+
         let clarificationDB = cloudant.db.use(process.env.CLARIFICATION_DB);
-        clarificationDB.insert(inconsistency).then((result, err) => {
-            if(err) {
-                alert("No se ha podido registrar la corrección!");
-                return;
+
+        // Check if the clarification exists.
+        clarificationDB.get(inconsistency._id, function(err, result){
+            if(result){
+                inconsistency['_rev'] = result._rev;
+                inconsistency['solved'] = false;
             }
-            location.reload();
-        })
-    })
+            clarificationDB.insert(inconsistency).then((res, err) => {
+                if(err) {
+                    alert("No se ha podido registrar la corrección!");
+                    return;
+                }
+                location.reload();
+            });
+        });
+    });
 }
 
 /* Delete a Clarification and update the solved property in inconsistency DB*/
