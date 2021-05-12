@@ -11,7 +11,7 @@
   "dependencies": {
     "@cloudant/cloudant": "^4.1.0",
     "bootstrap": "^4.3.1",
-    "chart.js": "^2.8.0",
+    "chart.js": "^2.9.4",
     "dotenv": "^8.0.0",
     "electron": "^5.0.1",
     "flatpickr": "^4.6.1",
